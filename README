@@ -6,13 +6,12 @@ Simple command line task manager
 - Supports attachments, comments, tag based categorization and filtering
 - Supports synchronization with git
 - Small and hackable codebase (If you like Shell)
-- Leverage existing tools. Let users edit task titles, tags and
-  descriptions with their own editor. Let them handle attachments simply
-  by using their own file browsers. This way prevent inflation of
-  subcommands and flags; also making this tool more accessible to less
-  technical users. Handle synchronization with peers using git in a
-  decentralized fashion, instead of inventing protocols or configuring
-  task servers.
+- Leverages existing tools. Lets users edit task titles, tags and
+  descriptions with their own editor. Lets them handle attachments
+  simply by using their own file browsers. This way prevents inflation
+  of subcommands and flags; becoming more accessible to less technical
+  users. Handles synchronization with peers using git, instead of
+  inventing protocols or configuring task servers.
 
 ## Demo:
 [Asciinema Video](https://asciinema.org/a/GhK92TQN71c7Z5oAbujDKDsEq)
