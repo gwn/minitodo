@@ -28,8 +28,8 @@ A POSIX compatible environment and Git are the only dependencies at the moment
 ## Documentation
 
 Commands:
-help | quit | q | proj | new | sum | <taskid> | ed | attach | discuss | say | discussion | talk | tags |
-ls | ls-any | ls-title | rm | sync | reindex
+help | quit | q | proj | new | sum | <taskid> | ed | attach | discuss |
+say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex
 
 Command details:
 help                         Show this screen
