@@ -49,8 +49,8 @@ discussion <taskid>          List all comments of this task
 talk <taskid>                Alias of "discussion"
 tags                         Show all tags
 ls                           List all tasks
-ls <tag1> <tag2> ..        List tasks filtered by all matching tags
-ls-any <tag1> <tag2> ..    List tasks filtered by any matching tag
+ls <tag1> <tag2> ..          List tasks filtered by all matching tags
+ls-any <tag1> <tag2> ..      List tasks filtered by any matching tag
 ls-title <search-text>       List tasks that contain the text <search-text> in
                              their title
 rm <taskid>                  Remove task
