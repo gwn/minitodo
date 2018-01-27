@@ -1,0 +1,430 @@
+#!/bin/sh
+
+# Dependencies: git
+
+# TODO: Test with other non-linux but POSIX-compatible OSes.
+# TODO: Implement a non-interactive mode. This is important as to
+#       enable another layer (eg a GUI) to be built on top of this.
+# TODO: Put tasks in a folder named 'tasks' in the project dir. Do not leave
+#       them share the directory with the index file. May lead to bugs.
+# TODO: How to handle notifications?? Should we?
+# TODO: Resolve all parts having a 'TODO' string in this document
+# TODO: Make sure this is compatible with bare Bourne Shell and it does
+#       not depend on bash. Advertise this 'feature'
+# TODO: Compare this to "bug", "todoist" and "taskwarrior"
+# TODO: Create a video with asciinema
+# TODO: Document: Task tags cannot include commas
+# TODO: Migrate from git to hg? Think about availability and portability
+# TODO: Do analytics from git/hg history??
+#       Who did what and when
+#       Try to generate reports from acquired data (or enable a 3rd party)??
+
+# Globals
+storagedir=$HOME/.minitodo
+sep=';'
+projname=
+projdir=
+
+# Import config globals, FILEBROWSER and GITCONFIG_PATH
+source $storagedir/config
+
+function main {
+  checkconfig
+  init
+
+  clear
+  echo -e Project "\"$projname\"\n"
+  list
+
+  while true; do
+    echo -en "\n> "
+    read cmd
+
+    if test "$cmd" = quit -o "$cmd" = q; then
+      break
+    fi
+
+    runcmd $cmd
+  done
+}
+
+function checkconfig {
+  if test -z $FILEBROWSER; then
+    echo You did not provide a filebrowser!
+    exit 2
+  elif ! test -r $GITCONFIG_PATH; then
+    echo Your gitconfig file could not be found! Please configure it!
+    exit 2
+  fi
+}
+
+function init {
+  touch $storagedir/projname
+  projname=$(cat $storagedir/projname)
+
+  if test -z "$projname"; then
+    projname=default
+    echo $projname > $storagedir/projname
+  fi
+
+  projdir=$storagedir/$projname
+  mkdir -p $projdir
+}
+
+function runcmd {
+  cmd=$1; shift
+
+  clear
+  echo -e Project "\"$projname\"\n"
+
+  case $cmd in
+    help) usage "$@" ;;
+    proj) proj "$@" ;;
+    new) new "$@" ;;
+    sum) sum "$@" ;;
+    attach) attach "$@" ;;
+    ed) edit "$@" ;;
+    ls) list_match_all_tags "$@" ;;
+    ls-any) list_match_any_tag "$@" ;;
+    ls-title) list_match_title "$@" ;;
+    rm) remove "$@" ;;
+    tags) tags "$@" ;;
+    discuss) discuss "$@" ;;
+    say) discuss "$@" ;;
+    discussion) discussion "$@" ;;
+    talk) discussion "$@" ;;
+    reindex) reindex "$@" ;;
+    sync) sync "$@" ;;
+    *)
+      if echo $cmd | grep -q '^[0-9]\+$'; then
+        sum $cmd
+      else
+        usage
+      fi
+      ;;
+  esac
+}
+
+function usage {
+  echo 'Commands:'
+  echo 'help | quit | q | proj | new | sum | <taskid> | ed | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex'
+
+  echo ''
+
+  echo 'Command details: '
+  (
+    echo 'help | Show this screen'
+    echo 'quit | Quit'
+    echo 'q | Alias of "quit"'
+    echo 'proj | List projects'
+    echo 'proj <projname> | Switch to project'
+    echo 'new | Create new task'
+    echo 'sum <taskid> | Show task summary'
+    echo '<taskid> | Shortcut for sum'
+    echo 'ed <taskid> | Edit basic task info'
+    echo 'attach <taskid> | Open attachments directory'
+    echo 'discuss <taskid> | Add a new comment to this task'
+    echo 'say <taskid> | Alias of "discuss"'
+    echo 'discussion <taskid> | List all comments of this task'
+    echo 'talk <taskid> | Alias of "discussion"'
+    echo 'tags | Show all tags'
+    echo 'ls | List all tasks'
+    echo 'ls <tag1>, <tag2>, .. | List tasks filtered by all matching tags'
+    echo 'ls-any <tag1>, <tag2>, .. | List tasks filtered by any matching tag'
+    echo 'ls-title <search-text> | List tasks that contain the text <search-text> in their title'
+    echo 'rm <taskid> | Remove task'
+    echo 'sync | Send your updates to your target task repository'
+    echo 'reindex | Update the index file, for advanced use. If for any reason you suspect that the task list and the task files go out of sync, you can reindex.'
+  ) | column -ts'|'
+}
+
+function proj {
+  if test -z "$1"; then
+    ls $storagedir | grep -vE 'projname|config'
+    return
+  fi
+
+  projname="$1"
+  projdir=$storagedir/$projname
+  echo $projname > $storagedir/projname
+  mkdir -p $projdir
+  runcmd ls
+}
+
+function new {
+  taskno=$(expr $(ls $projdir | grep -v index.csv | sort -hr | head -n 1) + 1)
+  taskdir=$projdir/$taskno
+  taskfile=$taskdir/task.yaml
+  mkdir $taskdir
+
+  echo 'name: ' >> $taskfile
+  echo 'tags: ' >> $taskfile
+  echo 'description: | ' >> $taskfile
+  echo '  ' >> $taskfile
+
+  $EDITOR $taskfile
+
+  if ! test -f $taskfile; then  # if user quit without saving
+    return
+  fi
+
+  reindexsingle $taskno
+
+  sum $taskno
+}
+
+function sum {
+  taskno=$1
+  taskdir=$projdir/$taskno
+  attachdir=$taskdir/attachments
+  discussdir=$taskdir/discussion
+
+  if ! test -d $taskdir; then
+    echo "Task #$taskno does not exist!"
+    return
+  fi
+
+  echo "#$taskno"
+  cat $taskdir/task.yaml
+
+  echo -en '\nAttachments: '
+  mkdir -p $attachdir
+  totalattachments=$(ls $attachdir | wc -l)
+
+  if test $totalattachments = 0; then
+    echo None
+  else
+    echo ''
+
+    ls $attachdir | grep -v task.yaml | while read filename; do
+      filetype=$(file -b --mime-type $attachdir/$filename)
+      filesize=$(du -h $attachdir/$filename | cut -f1)
+      echo $filename,$filetype,$filesize
+    done | column -ts,
+  fi
+
+  echo -en '\nDiscussion: '
+  mkdir -p $discussdir
+  totalcomments=$(ls $discussdir | wc -l)
+  commenters=$(ls $discussdir | cut -d- -f2 | sort | uniq | paste -sd,)
+
+  echo -n "$totalcomments comments"
+  if test -n "$commenters"; then
+    echo " between $commenters"
+  fi
+  echo ''
+}
+
+function attach {
+  taskno=$1
+  attachdir=$projdir/$taskno/attachments
+
+  if test -z $taskno; then
+    echo 'You must provide a task number!'
+    return
+  elif ! test -d $taskdir; then
+    echo "Task #$taskno does not exist!"
+    return
+  fi
+
+  if echo $FILEBROWSER | grep -qE '^(sh|dash|bash)$'; then
+    $FILEBROWSER -c "cd $attachdir; $SHELL"
+  else
+    $FILEBROWSER $attachdir
+  fi
+
+  sum $1
+}
+
+function edit {
+  taskno=$1
+  taskfile=$projdir/$taskno/task.yaml
+  $EDITOR $taskfile
+
+  reindexsingle $taskno
+
+  sum $taskno
+}
+
+function tags {
+  indexfile=$projdir/index.csv
+  cat $indexfile | cut -d$sep -f3 | tr , '\n' | sort | uniq -c | sort -nr
+}
+
+function list_match_all_tags {
+  list tagfilter "$@"
+}
+
+function list_match_any_tag {
+  list tagfilterany "$@"
+}
+
+function list_match_title {
+  list titlefilter "$@"
+}
+
+function list {
+  subcmd=$1; shift
+  filter="$@"
+  headerline=no${sep}name${sep}tags
+  indexfile=$projdir/index.csv
+  indexrecordnum=$(cat $indexfile 2>/dev/null | wc -l)
+
+  if test $indexrecordnum -eq 0; then
+    echo 'Nothing to do! Yeah!!'
+    return
+  fi
+
+  body=$(
+    if test -z "$filter"; then
+      cat $indexfile
+    else
+      case $subcmd in
+        tagfilter) filterbytag $indexfile "$filter" ;;
+        tagfilterany) filterbytag -any $indexfile "$filter" ;;
+        titlefilter) cat $indexfile | grep -i $1 ;;
+        *) cat $indexfile ;;
+      esac
+    fi
+  )
+
+  echo -e "$headerline\n$body" | column -ts $sep
+}
+
+function filterbytag {
+  if test $1 = '-any'; then
+    shift
+    mode='any'
+  else
+    mode='all'
+  fi
+
+  targetfile=$1
+  filter="$2"
+
+  searchtags=$(echo "$filter" | tr ' ' '\n')
+  totalsearchtags=$(echo "$searchtags" | wc -l)
+
+  cat $targetfile | while read record; do
+    recordtags=$(echo $record | cut -d$sep -f 3 | tr , '\n')
+
+    totalmatchingtags=$(echo "$recordtags" | grep -Fx "$searchtags" | wc -l)
+
+    if test $mode = 'any' -a $totalmatchingtags -gt 0; then
+      echo $record
+    elif test $mode = 'all' -a $totalsearchtags -eq $totalmatchingtags; then
+      echo $record
+    fi
+  done
+}
+
+function remove {
+  taskno=$1
+  rm -r $projdir/$taskno
+  sed -i /^${taskno}${sep}/d $projdir/index.csv
+
+  list
+}
+
+function discuss {
+  taskno=$1
+  discussdir=$projdir/$taskno/discussion
+  timestamp=$(date +%s)
+  commenter=$(git config user.name)
+
+  mkdir -p $discussdir
+
+  $EDITOR $discussdir/$timestamp-$commenter
+
+  discussion $1
+}
+
+function discussion {
+  taskno=$1
+  discussdir=$projdir/$taskno/discussion
+
+  taskname=$(createindex $1 | cut -d$sep -f2)
+
+  echo -e "Discussion of #$taskno $taskname:\n"
+
+  ls $discussdir | while read filename; do
+    commenttimestamp=$(echo $filename | cut -d- -f1)
+    commenter=$(echo $filename | cut -d- -f2)
+    commentdate=$(date --date="@$commenttimestamp" +'%d %b %H:%M')
+
+    echo $commenter said at $commentdate:
+    cat $discussdir/$filename
+    echo -e '\n'
+  done
+}
+
+function sync {
+  if test -n "$1"; then
+    syncnote="$1"
+  else
+    syncnote='love me two times baby'
+  fi
+
+  pushd $projdir 2>/dev/null
+
+  if test -d .git; then
+    git fetch
+    git merge origin/master
+  else
+    echo 'You will synchronize this project for the first time.'
+    echo -n 'Please type your target git repo address: '
+    read gitaddr
+
+    git init
+    git remote add origin $gitaddr
+    git fetch
+
+    if git branch -r | grep -q origin/master; then
+      git branch master origin/master
+    fi
+  fi
+
+  if test -n "$(git status --porcelain)"; then
+    git add .
+    git commit -m "$syncnote"
+    git push origin master
+  fi
+
+  popd 2>/dev/null
+}
+
+function reindex {
+  indexfile=$projdir/index.csv
+  cat /dev/null > $indexfile
+
+  ls $projdir | grep -v index.csv | while read taskno; do
+    updatedindex=$(createindex $taskno)
+    echo $updatedindex >> $indexfile
+  done
+}
+
+function reindexsingle {
+  taskno=$1
+  updatedindex=$(createindex $taskno)
+  indexfile=$projdir/index.csv
+
+  touch $indexfile
+
+  if grep -q ^${taskno}${sep} $indexfile; then
+    sed -i "s/^${taskno}${sep}.*$/$updatedindex/" $indexfile
+  else
+    echo $updatedindex >> $indexfile
+  fi
+}
+
+function createindex {
+  taskno=$1
+  taskfile=$projdir/$taskno/task.yaml
+
+  taskname=$(cat $taskfile | sed '1q;d' | cut -d: -f2 | sed 's/^ \+//')
+  tasktags=$(cat $taskfile | sed '2q;d' | cut -d: -f2 | sed 's/ //')
+
+  echo ${taskno}${sep}${taskname}${sep}${tasktags}
+}
+
+main "$@"

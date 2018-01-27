@@ -1,0 +1,38 @@
+clear
+
+echo -n "Let's start with reviewing the example config file, "
+echo 'which documents the configuration variables.'
+
+echo -e '\nPress Enter to continue'
+read
+
+cat config.example
+
+echo -e '\nPress Enter to continue'
+read
+
+echo 'Please type your desired file browser'
+echo '(Examples: finder|nautilus|dolphin|ranger|noice|sh)'
+echo -n '> '
+read FILEBROWSER
+
+echo ''
+echo 'Please type the location of your gitconfig file.'
+echo 'You can leave blank for the default location which is $HOME/.gitconfig'
+echo -n '> '
+read GITCONFIG_LOCATION
+
+if test -z "$GITCONFIG_LOCATION"; then
+  GITCONFIG_LOCATION=$HOME/.gitconfig
+fi
+
+cat /dev/null > config
+echo "FILEBROWSER=$FILEBROWSER" >> config
+echo "GITCONFIG_LOCATION=$GITCONFIG_LOCATION" >> config
+
+echo ''
+echo 'Configuration file is generated:'
+echo ''
+cat config
+echo ''
+echo 'You are ready for installation!'

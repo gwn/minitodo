@@ -1,0 +1,22 @@
+# The file browser
+# The program that will open your attachment directories
+# Suggestions:
+#   "finder" for MacOS users
+#   "nautilus" for Gnome users
+#   "dolphin" for KDE users
+#   "ranger" for command line hackers
+#   "noice" for more radical command line hackers
+#   "sh" for enlightened ones
+
+FILEBROWSER=
+
+
+# Git configuration file path
+# This is required as you will use Git as your underlying
+# version control system for minitodo. This configuration
+# file usually holds information such as your name, email,
+# and other Git specific options. The standard location is
+# $HOME/.gitconfig, but you need to update below if your
+# file is in another location.
+
+GITCONFIG_PATH=$HOME/.gitconfig
