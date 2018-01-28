@@ -33,7 +33,7 @@ source $storagedir/config
 
 function main {
   checkconfig
-  init
+  boot
 
   clear
   echo -e Project "\"$projname\"\n"
@@ -61,7 +61,7 @@ function checkconfig {
   fi
 }
 
-function init {
+function boot {
   touch $storagedir/projname
   projname=$(cat $storagedir/projname)
 
