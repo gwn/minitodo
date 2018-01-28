@@ -111,47 +111,38 @@ function runcmd {
 }
 
 function usage {
-  echo 'Commands:'
   echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag |'
   echo 'detag | attach | discuss | say | discussion | talk | tags | ls |'
   echo 'ls-any | ls-title | close | cl | rm | activity | act | sync | reindex'
 
   echo ''
 
-  echo 'Command details: '
-  (
+  {
     echo 'help | Show this screen'
-    echo 'quit | Quit'
-    echo 'q | Alias of "quit"'
+    echo 'quit or q | Quit'
     echo 'proj | List projects'
     echo 'proj <projname> | Switch to project'
     echo 'new | Create new task'
-    echo 'sum <taskid> | Show task summary'
-    echo '<taskid> | Shortcut for sum'
+    echo 'sum <taskid> or <taskid> | Show task summary'
     echo 'ed <taskid> | Edit basic task info'
     echo 'up <taskid> | Increase the priority of the task by 1'
+    echo 'down <taskid> | Decrease the priority of the task by 1'
     echo 'tag <taskid> <tag1> [<tag2> ...] | Add tags to task'
     echo 'detag <taskid> <tag1> [<tag2> ...] | Remove tags from task'
-    echo 'down <taskid> | Decrease the priority of the task by 1'
     echo 'attach <taskid> | Open attachments directory'
-    echo 'discuss <taskid> | Add a new comment to this task'
-    echo 'say <taskid> | Alias of "discuss"'
-    echo 'discussion <taskid> | List all comments of this task'
-    echo 'talk <taskid> | Alias of "discussion"'
+    echo 'discuss <taskid> or say <taskid> | Add a new comment to this task'
+    echo 'discussion <taskid> or talk <taskid> | List all comments of this task'
     echo 'tags | Show all tags'
-    echo 'ls | List all tasks'
-    echo 'l | Alias of "ls"'
+    echo 'ls or l | List all tasks'
     echo 'ls <tag1> <tag2> .. | List tasks filtered by all matching tags'
     echo 'ls-any <tag1> <tag2> .. | List tasks filtered by any matching tag'
     echo 'ls-title <search-text> | List tasks that contain the text <search-text> in their title'
-    echo 'close <taskid> | Close and archive task'
-    echo 'cl <taskid> | Alias of "close"'
+    echo 'close <taskid> or cl <taskid> | Close and archive task'
     echo 'rm <taskid> | Remove task'
-    echo 'activity | Display activity log'
-    echo 'act | Alias of "activity"'
+    echo 'activity or act | Display activity log'
     echo 'sync | Send your updates to your target task repository'
     echo 'reindex | Update the index file, for advanced use. If for any reason you suspect that the task list and the task files go out of sync, you can reindex.'
-  ) | column -ts'|'
+  } | column -ts'|'
 }
 
 function proj {
