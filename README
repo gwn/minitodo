@@ -29,35 +29,37 @@ Simple command line task manager
 ## Documentation
 
 Commands:
-help | quit | q | proj | new | sum | <taskid> | ed | up | down | attach |
-discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync |
-reindex
+help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag |
+attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title |
+rm | sync | reindex
 
 Command details:
-help                         Show this screen
-quit                         Quit
-q                            Alias of "quit"
-proj                         List projects
-proj <projname>              Switch to project
-new                          Create new task
-sum <taskid>                 Show task summary
-<taskid>                     Shortcut for sum
-ed <taskid>                  Edit basic task info
-up <taskid>                  Increase the priority of the task by 1
-down <taskid>                Decrease the priority of the task by 1
-attach <taskid>              Open attachments directory
-discuss <taskid>             Add a new comment to this task
-say <taskid>                 Alias of "discuss"
-discussion <taskid>          List all comments of this task
-talk <taskid>                Alias of "discussion"
-tags                         Show all tags
-ls                           List all tasks
-ls <tag1> <tag2> ..          List tasks filtered by all matching tags
-ls-any <tag1> <tag2> ..      List tasks filtered by any matching tag
-ls-title <search-text>       List tasks that contain the text <search-text> in
-                             their title
-rm <taskid>                  Remove task
-sync                         Send your updates to your target task repository
-reindex                      Update the index file, for advanced use. If for
-                             any reason you suspect that the task list and the
-                             task files go out of sync, you can reindex.
+help                                Show this screen
+quit                                Quit
+q                                   Alias of "quit"
+proj                                List projects
+proj <projname>                     Switch to project
+new                                 Create new task
+sum <taskid>                        Show task summary
+<taskid>                            Shortcut for sum
+ed <taskid>                         Edit basic task info
+up <taskid>                         Increase the priority of the task by 1
+down <taskid>                       Decrease the priority of the task by 1
+tag <taskid> <tag1> [<tag2> ...]    Add tags to task
+detag <taskid> <tag1> [<tag2> ...]  Remove tags from task
+attach <taskid>                     Open attachments directory
+discuss <taskid>                    Add a new comment to this task
+say <taskid>                        Alias of "discuss"
+discussion <taskid>                 List all comments of this task
+talk <taskid>                       Alias of "discussion"
+tags                                Show all tags
+ls                                  List all tasks
+ls <tag1> <tag2> ..                 List tasks filtered by all matching tags
+ls-any <tag1> <tag2> ..             List tasks filtered by any matching tag
+ls-title <search-text>              List tasks that contain the text <search-text> in
+                                    their title
+rm <taskid>                         Remove task completely
+sync                                Send your updates to your target task repository
+reindex                             Update the index file, for advanced use. If for
+                                    any reason you suspect that the task list and the
+                                    task files go out of sync, you can reindex.

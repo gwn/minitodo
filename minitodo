@@ -2,6 +2,8 @@
 
 # Dependencies: git (optional, only required for syncing)
 
+# TODO: UX: Remember the last screen the user was in and display that after
+#       the user ran a command such as reprioritiation or tagging.
 # TODO: Do not calculate new task ids by finding the last highest task id,
 #       but keep a counter file.
 # TODO: Test with other non-linux but POSIX-compatible OSes.
@@ -78,6 +80,8 @@ function runcmd {
     ed) edit "$@" ;;
     up) up "$@" ;;
     down) down "$@" ;;
+    tag) tag "$@" ;;
+    detag) detag "$@" ;;
     ls) list_match_all_tags "$@" ;;
     l) list_match_all_tags "$@" ;;
     ls-any) list_match_any_tag "$@" ;;
@@ -102,7 +106,7 @@ function runcmd {
 
 function usage {
   echo 'Commands:'
-  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex'
+  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex'
 
   echo ''
 
@@ -118,6 +122,8 @@ function usage {
     echo '<taskid> | Shortcut for sum'
     echo 'ed <taskid> | Edit basic task info'
     echo 'up <taskid> | Increase the priority of the task by 1'
+    echo 'tag <taskid> <tag1> [<tag2> ...] | Add tags to task'
+    echo 'detag <taskid> <tag1> [<tag2> ...] | Remove tags from task'
     echo 'down <taskid> | Decrease the priority of the task by 1'
     echo 'attach <taskid> | Open attachments directory'
     echo 'discuss <taskid> | Add a new comment to this task'
@@ -273,6 +279,46 @@ function reprioritize {
   reindexsingle $taskno
 
   list
+}
+
+function tag {
+  taskno=$1
+  addtags "$@"
+  sum $1
+}
+
+function detag {
+  taskno=$1
+  rmtags "$@"
+  sum $1
+}
+
+function addtags {
+  taskno=$1; shift
+  newtags=$(echo "$@" | tr ' ' '\n')
+  currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
+  taskfile=$projdir/$taskno/task.yaml
+
+  updatedtags=$(
+    echo -e "$newtags\n$currenttags" | grep -v ^$ | sort | uniq | paste -sd,
+  )
+
+  sed -i "2s/.*/tags: $updatedtags/" $taskfile
+
+  reindexsingle $taskno
+}
+
+function rmtags {
+  taskno=$1; shift
+  tagstodelete=$(echo "$@" | tr ' ' '\n')
+  currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
+  taskfile=$projdir/$taskno/task.yaml
+
+  updatedtags=$(echo "$currenttags" | grep -Fxv "$tagstodelete")
+
+  sed -i "2s/.*/tags: $updatedtags/" $taskfile
+
+  reindexsingle $taskno
 }
 
 function tags {
