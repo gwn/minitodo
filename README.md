@@ -22,11 +22,16 @@ Just two days ago I was cursing a bloated web based task manager and
 was considering switching to [taskwarrior][1] / [bug][2] / plain text
 files  for my task management needs.
 
-The problem is that Taskwarrior is a bit too complicated for my tastes,
-and also not much friendly to non-tech people. While bug and plain text
+The problem is that Taskwarrior is a bit too complicated for my tastes,  
+and also not much friendly to non-tech people. While bug and plain text  
 files do not have all the features I need.
 
 So I thought why not invent yet another task manager myself??
+
+## Status
+
+While being a (barely) working prototype; this is a work in progress,  
+and is still in alpha phase.
 
 ### Installation
 
