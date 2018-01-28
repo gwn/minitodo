@@ -2,6 +2,8 @@
 
 # Dependencies: git
 
+# TODO: Do not calculate new task ids by finding the last highest task id,
+#       but keep a counter file.
 # TODO: Test with other non-linux but POSIX-compatible OSes.
 # TODO: Implement a non-interactive mode. This is important as to
 #       enable another layer (eg a GUI) to be built on top of this.
@@ -12,7 +14,8 @@
 # TODO: Make sure this is compatible with bare Bourne Shell and it does
 #       not depend on bash. Advertise this 'feature'
 # TODO: Compare this to "bug", "todoist" and "taskwarrior"
-# TODO: Create a video with asciinema
+# TODO: Add an archive command, to move old tasks in another directory,
+#       for boosting performance??
 # TODO: Document: Task tags cannot include commas
 # TODO: Migrate from git to hg? Think about availability and portability
 # TODO: Do analytics from git/hg history??
@@ -84,6 +87,8 @@ function runcmd {
     sum) sum "$@" ;;
     attach) attach "$@" ;;
     ed) edit "$@" ;;
+    up) up "$@" ;;
+    down) down "$@" ;;
     ls) list_match_all_tags "$@" ;;
     l) list_match_all_tags "$@" ;;
     ls-any) list_match_any_tag "$@" ;;
@@ -108,7 +113,7 @@ function runcmd {
 
 function usage {
   echo 'Commands:'
-  echo 'help | quit | q | proj | new | sum | <taskid> | ed | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex'
+  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex'
 
   echo ''
 
@@ -123,6 +128,8 @@ function usage {
     echo 'sum <taskid> | Show task summary'
     echo '<taskid> | Shortcut for sum'
     echo 'ed <taskid> | Edit basic task info'
+    echo 'up <taskid> | Increase the priority of the task by 1'
+    echo 'down <taskid> | Decrease the priority of the task by 1'
     echo 'attach <taskid> | Open attachments directory'
     echo 'discuss <taskid> | Add a new comment to this task'
     echo 'say <taskid> | Alias of "discuss"'
@@ -161,6 +168,7 @@ function new {
 
   echo 'name: ' >> $taskfile
   echo 'tags: ' >> $taskfile
+  echo 'priority: 5' >> $taskfile
   echo 'description: | ' >> $taskfile
   echo '  ' >> $taskfile
 
@@ -248,6 +256,29 @@ function edit {
   sum $taskno
 }
 
+function up {
+  taskno=$1
+  reprioritize $taskno '+'
+}
+
+function down {
+  taskno=$1
+  reprioritize $taskno '-'
+}
+
+function reprioritize {
+  taskno=$1
+  operation=$2
+
+  taskfile=$projdir/$taskno/task.yaml
+  priority=$(cat $taskfile | sed '3q;d' | cut -d: -f2 | sed 's/ //')
+  newpriority=$(expr $priority $operation 1)
+  sed -i "3s/[0-9]$/$newpriority/" $taskfile
+  reindexsingle $taskno
+
+  list
+}
+
 function tags {
   indexfile=$projdir/index.csv
   cat $indexfile | cut -d$sep -f3 | tr , '\n' | sort | uniq -c | sort -nr
@@ -268,7 +299,7 @@ function list_match_title {
 function list {
   subcmd=$1; shift
   filter="$@"
-  headerline=no${sep}name${sep}tags
+  headerline=no${sep}name${sep}tags${sep}pri
   indexfile=$projdir/index.csv
   indexrecordnum=$(cat $indexfile 2>/dev/null | wc -l)
 
@@ -287,7 +318,8 @@ function list {
         titlefilter) cat $indexfile | grep -i $1 ;;
         *) cat $indexfile ;;
       esac
-    fi
+    fi |\
+    sort -nr -t';' -k4
   )
 
   echo -e "$headerline\n$body" | column -ts $sep
@@ -425,8 +457,9 @@ function createindex {
 
   taskname=$(cat $taskfile | sed '1q;d' | cut -d: -f2 | sed 's/^ \+//')
   tasktags=$(cat $taskfile | sed '2q;d' | cut -d: -f2 | sed 's/ //')
+  taskpriority=$(cat $taskfile | sed '3q;d' | cut -d: -f2 | sed 's/ //')
 
-  echo ${taskno}${sep}${taskname}${sep}${tasktags}
+  echo ${taskno}${sep}${taskname}${sep}${tasktags}${sep}${taskpriority}
 }
 
 main "$@"
