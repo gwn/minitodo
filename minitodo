@@ -85,6 +85,7 @@ function runcmd {
     attach) attach "$@" ;;
     ed) edit "$@" ;;
     ls) list_match_all_tags "$@" ;;
+    l) list_match_all_tags "$@" ;;
     ls-any) list_match_any_tag "$@" ;;
     ls-title) list_match_title "$@" ;;
     rm) remove "$@" ;;
@@ -129,6 +130,7 @@ function usage {
     echo 'talk <taskid> | Alias of "discussion"'
     echo 'tags | Show all tags'
     echo 'ls | List all tasks'
+    echo 'l | Alias of "ls"'
     echo 'ls <tag1> <tag2> .. | List tasks filtered by all matching tags'
     echo 'ls-any <tag1> <tag2> .. | List tasks filtered by any matching tag'
     echo 'ls-title <search-text> | List tasks that contain the text <search-text> in their title'
