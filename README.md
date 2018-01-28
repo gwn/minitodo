@@ -16,6 +16,18 @@ Simple command line task manager
 All POSIX compatible environments are supported.  
 (MacOS, Linux, BSDs, Cygwin in Windows, ..)
 
+### Why
+
+Just two days ago I was cursing a bloated web based task manager and  
+was considering switching to [taskwarrior][1] / [bug][2] / plain text
+files  for my task management needs.
+
+The problem is that Taskwarrior is a bit too complicated for my tastes,
+and also not much friendly to non-tech people. While bug and plain text
+files do not have all the features I need.
+
+So I thought why not invent yet another task manager myself??
+
 ### Installation
 
     make config  # or cp config.example config; vi config
@@ -62,3 +74,6 @@ Command details:
                                    use. If for any reason you suspect that
                                    the task list and the task files go out
                                    of sync, you can reindex.
+
+[1]: https://taskwarrior.org/
+[2]: https://github.com/driusan/bug
