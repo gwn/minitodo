@@ -19,7 +19,7 @@ All POSIX compatible environments are supported.
 ### Why
 
 Just two days ago I was cursing a bloated web based task manager and  
-was considering switching to [taskwarrior][1] / [bug][2] / plain text
+was considering switching to [taskwarrior][1] / [bug][2] / plain text  
 files  for my task management needs.
 
 The problem is that Taskwarrior is a bit too complicated for my tastes,  
