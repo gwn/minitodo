@@ -522,7 +522,7 @@ function logactivity {
       ;;
 
     close)
-      msg="$user closed task $tasksign."
+      msg="$user closed task #$taskno."
       ;;
 
     remove)
