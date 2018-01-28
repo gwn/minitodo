@@ -22,7 +22,7 @@ Simple command line task manager
 
 ## Installation
 
-    make config
+    make config  # or cp config.example config; vi config
     make install
     make install-config
 

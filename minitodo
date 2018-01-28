@@ -2,6 +2,7 @@
 
 # Dependencies: git (optional, only required for syncing)
 
+# TODO: Implement an activity feed
 # TODO: Remove the IDs of closed tasks
 # TODO: UX: Remember the last screen the user was in and display that after
 #       the user ran a command such as reprioritiation or tagging.
@@ -10,16 +11,14 @@
 # TODO: Test with other non-linux but POSIX-compatible OSes.
 # TODO: Implement a non-interactive mode. This is important as to
 #       enable another layer (eg a GUI) to be built on top of this.
-# TODO: Put tasks in a folder named 'tasks' in the project dir. Do not leave
-#       them share the directory with the index file. May lead to bugs.
 # TODO: How to handle notifications?? Should we?
 # TODO: Resolve all parts having a 'TODO' string in this document
 # TODO: Make sure this is compatible with bare Bourne Shell and it does
 #       not depend on bash. Advertise this 'feature'
 # TODO: Compare this to "bug", "todoist" and "taskwarrior"
-# TODO: Add an archive command, to move old tasks in another directory,
-#       for boosting performance??
-# TODO: Document: Task tags cannot include commas
+# TODO: Document: Task tags are delimited by spaces so individual tags cannot
+#       contain spaces
+# TODO: Document: Task names and tags can not include $SEP
 # TODO: Migrate from git to hg? Think about availability and portability
 # TODO: Do analytics from git/hg history??
 #       Who did what and when
@@ -31,7 +30,7 @@ SEP=';'
 PROJNAME=
 PROJDIR=
 
-# Import config globals, FILEBROWSER and GITCONFIG_PATH
+# Import config globals, $NAME and $FILEBROWSER
 source $STORAGEDIR/config
 
 function main {
@@ -460,7 +459,7 @@ function discuss {
   local taskno=$1
   local discussdir=$PROJDIR/tasks/open/$taskno/discussion
   local timestamp=$(date +%s)
-  local commenter=$(git config user.name)
+  local commenter=$NAME
 
   mkdir -p $discussdir
 
@@ -493,12 +492,6 @@ function sync {
 
   if ! which git; then
     echo You need to have Git installed to be able to synchronize!!
-    echo Sync cancelled!
-    return
-  fi
-
-  if ! test -r $GITCONFIG_PATH; then
-    echo Your gitconfig file could not be found! Please configure it!
     echo Sync cancelled!
     return
   fi

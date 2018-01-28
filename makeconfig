@@ -1,34 +1,20 @@
 clear
 
-echo -n "Let's start with reviewing the example config file, "
-echo 'which documents the configuration variables.'
+echo -e 'Configuring minitodo\n'
 
-echo -e '\nPress Enter to continue'
-read
+echo 'Please enter your name'
+echo -n '> '
+read NAME
 
-cat config.example
-
-echo -e '\nPress Enter to continue'
-read
-
-echo 'Please type your desired file browser'
-echo '(Examples: finder|nautilus|dolphin|ranger|noice|sh)'
+echo -e '\nPlease type your desired file browser'
+echo -n '(Examples: "finder" for MacOS, "nautilus" for Linux, '
+echo '"ranger" or "sh" for shell)'
 echo -n '> '
 read FILEBROWSER
 
-echo ''
-echo 'Please type the location of your gitconfig file.'
-echo 'You can leave blank for the default location which is $HOME/.gitconfig'
-echo -n '> '
-read GITCONFIG_PATH
-
-if test -z "$GITCONFIG_PATH"; then
-  GITCONFIG_PATH=$HOME/.gitconfig
-fi
-
 cat /dev/null > config
+echo NAME='"'$NAME'"' >> config
 echo "FILEBROWSER=$FILEBROWSER" >> config
-echo "GITCONFIG_PATH=$GITCONFIG_PATH" >> config
 
 echo ''
 echo 'Configuration file is generated:'

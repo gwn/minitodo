@@ -1,3 +1,9 @@
+# Your name
+#
+# The name you type here will be used in your comments and activity feeds.
+
+NAME=
+
 # The file browser
 #
 # The program that will open your attachment directories
@@ -11,15 +17,3 @@
 #   "sh" for enlightened ones
 
 FILEBROWSER=
-
-
-# Git configuration file path
-#
-# This is required if you want to sync your updates (with your
-# peers); as you will use Git as your underlying version control
-# system for minitodo. This configuration file usually holds
-# information such as your name, email, and other Git specific
-# options. The standard location is $HOME/.gitconfig, but you
-# need to update below if your file is in another location.
-
-GITCONFIG_PATH=$HOME/.gitconfig
