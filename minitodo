@@ -2,6 +2,8 @@
 
 # Dependencies: git (optional, only required for syncing)
 
+# TODO: Separate tags with spaces instead of commas in source files
+# TODO: Remove the IDs of closed tasks
 # TODO: UX: Remember the last screen the user was in and display that after
 #       the user ran a command such as reprioritiation or tagging.
 # TODO: Do not calculate new task ids by finding the last highest task id,
@@ -64,7 +66,7 @@ function boot {
     echo $PROJNAME > $STORAGEDIR/projname
   fi
 
-  PROJDIR=$STORAGEDIR/$PROJNAME
+  PROJDIR=$STORAGEDIR/projects/$PROJNAME
 }
 
 function runcmd {
@@ -146,14 +148,14 @@ function usage {
 
 function proj {
   if test -z "$1"; then
-    ls $STORAGEDIR | grep -vE 'projname|config'
+    ls $STORAGEDIR/projects
     return
   fi
 
   makeproj "$1"
 
   PROJNAME="$1"
-  PROJDIR=$STORAGEDIR/$PROJNAME
+  PROJDIR=$STORAGEDIR/projects/$PROJNAME
 
   echo $PROJNAME > $STORAGEDIR/projname
 
@@ -162,14 +164,18 @@ function proj {
 
 function makeproj {
   local projname="$1"
-  local projdir=$STORAGEDIR/"$projname"
-  mkdir -p $projdir
+  local projdir=$STORAGEDIR/projects/"$projname"
+
+  mkdir -p $projdir/tasks/open
+  touch $projdir/index.csv
 }
 
 function new {
-  local lasttaskno=$(ls $PROJDIR | grep -v index.csv | sort -hr | head -n 1)
+  local lasttaskno=$(
+    ls $PROJDIR/tasks/open | sort -hr | head -n 1
+  )
   local taskno=$(expr $lasttaskno + 1)
-  local taskdir=$PROJDIR/$taskno
+  local taskdir=$PROJDIR/tasks/open/$taskno
   local taskfile=$taskdir/task.yaml
 
   mkdir $taskdir
@@ -193,7 +199,7 @@ function new {
 
 function sum {
   local taskno=$1
-  local taskdir=$PROJDIR/$taskno
+  local taskdir=$PROJDIR/tasks/open/$taskno
   local attachdir=$taskdir/attachments
   local discussdir=$taskdir/discussion
   local totalattachments filename filetype filesize
@@ -216,7 +222,7 @@ function sum {
   else
     echo ''
 
-    ls $attachdir | grep -v task.yaml | while read filename; do
+    ls $attachdir | while read filename; do
       filetype=$(file -b --mime-type $attachdir/$filename)
       filesize=$(du -h $attachdir/$filename | cut -f1)
       echo $filename,$filetype,$filesize
@@ -237,7 +243,7 @@ function sum {
 
 function attach {
   local taskno=$1
-  local attachdir=$PROJDIR/$taskno/attachments
+  local attachdir=$PROJDIR/tasks/open/$taskno/attachments
 
   if test -z $FILEBROWSER; then
     echo You did not provide a filebrowser!! Please configure it!
@@ -264,7 +270,7 @@ function attach {
 
 function edit {
   local taskno=$1
-  local taskfile=$PROJDIR/$taskno/task.yaml
+  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
   $EDITOR $taskfile
 
   reindexsingle $taskno
@@ -286,7 +292,7 @@ function reprioritize {
   local taskno=$1
   local operation=$2
 
-  local taskfile=$PROJDIR/$taskno/task.yaml
+  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
   local priority=$(select_from_index $taskno priority)
   local newpriority=$(expr $priority $operation 1)
 
@@ -312,7 +318,7 @@ function addtags {
   local taskno=$1; shift
   local newtags=$(echo "$@" | tr ' ' '\n')
   local currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
-  local taskfile=$PROJDIR/$taskno/task.yaml
+  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
 
   local updatedtags=$(
     echo -e "$newtags\n$currenttags" | grep -v ^$ | sort | uniq | paste -sd,
@@ -327,7 +333,7 @@ function rmtags {
   local taskno=$1; shift
   local tagstodelete=$(echo "$@" | tr ' ' '\n')
   local currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
-  local taskfile=$PROJDIR/$taskno/task.yaml
+  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
 
   local updatedtags=$(echo "$currenttags" | grep -Fxv "$tagstodelete")
 
@@ -415,7 +421,7 @@ function filterbytag {
 
 function remove {
   taskno=$1
-  rm -r $PROJDIR/$taskno
+  rm -r $PROJDIR/tasks/open/$taskno
   sed -i /^${taskno}${SEP}/d $PROJDIR/index.csv
 
   list
@@ -423,7 +429,7 @@ function remove {
 
 function discuss {
   local taskno=$1
-  local discussdir=$PROJDIR/$taskno/discussion
+  local discussdir=$PROJDIR/tasks/open/$taskno/discussion
   local timestamp=$(date +%s)
   local commenter=$(git config user.name)
 
@@ -436,7 +442,7 @@ function discuss {
 
 function discussion {
   local taskno=$1
-  local discussdir=$PROJDIR/$taskno/discussion
+  local discussdir=$PROJDIR/tasks/open/$taskno/discussion
   local taskname=$(createindex $1 | cut -d$SEP -f2)
   local commenttimestamp commenter commentdate
 
@@ -508,7 +514,7 @@ function reindex {
 
   cat /dev/null > $indexfile
 
-  ls $PROJDIR | grep -v index.csv | while read taskno; do
+  ls $PROJDIR/tasks/open | grep -v index.csv | while read taskno; do
     updatedindex=$(createindex $taskno)
     echo $updatedindex >> $indexfile
   done
@@ -530,7 +536,7 @@ function reindexsingle {
 
 function createindex {
   local taskno=$1
-  local taskfile=$PROJDIR/$taskno/task.yaml
+  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
 
   echo -n $taskno$SEP
   select_from_taskfile $taskno name tags priority | tr ';' $SEP
@@ -559,7 +565,7 @@ function select_from_index {
 function select_from_taskfile {
   local taskno=$1; shift
   local colnames="$@"
-  local taskfile=$PROJDIR/$taskno/task.yaml
+  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
   local colname lineno
 
   echo "$colnames" | tr ' ' '\n' | while read colname; do
