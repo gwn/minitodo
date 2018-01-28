@@ -20,15 +20,15 @@ echo ''
 echo 'Please type the location of your gitconfig file.'
 echo 'You can leave blank for the default location which is $HOME/.gitconfig'
 echo -n '> '
-read GITCONFIG_LOCATION
+read GITCONFIG_PATH
 
-if test -z "$GITCONFIG_LOCATION"; then
-  GITCONFIG_LOCATION=$HOME/.gitconfig
+if test -z "$GITCONFIG_PATH"; then
+  GITCONFIG_PATH=$HOME/.gitconfig
 fi
 
 cat /dev/null > config
 echo "FILEBROWSER=$FILEBROWSER" >> config
-echo "GITCONFIG_LOCATION=$GITCONFIG_LOCATION" >> config
+echo "GITCONFIG_PATH=$GITCONFIG_PATH" >> config
 
 echo ''
 echo 'Configuration file is generated:'
