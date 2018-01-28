@@ -1,0 +1,22 @@
+- UX: Remember the last screen the user was in and display that after
+  the user ran a command such as reprioritization or tagging.
+- Auto-sync after some operations?
+- Ignore indexes in the repo? And reindex after each sync??
+- Remove the IDs of closed tasks
+- Do not calculate new task ids by finding the last highest task id,
+  but keep a counter file.
+- Test with other non-linux but POSIX-compatible OSes.
+- Implement a non-interactive mode. This is important as to
+- enable another layer (eg a GUI) to be built on top of this.
+- How to handle notifications?? Should we?
+- Make sure this is compatible with bare Bourne Shell and it does
+  not depend on bash. Advertise this 'feature'
+- Compare this to "bug", "todoist" and "taskwarrior"
+- Document: Task tags are delimited by spaces so individual tags cannot
+  contain spaces
+- Document: Task names and tags can not include $SEP
+- Migrate from git to hg? Think about availability and portability
+- Do analytics from git/hg history??
+    Who did what and when
+    Try to generate reports from acquired data (or enable a 3rd party)??
+    Consider trying dat instead of git for large attachments

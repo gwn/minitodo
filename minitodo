@@ -1,29 +1,5 @@
 #!/bin/sh
 
-# Dependencies: git (optional, only required for syncing)
-
-# TODO: UX: Remember the last screen the user was in and display that after
-#       the user ran a command such as reprioritization or tagging.
-# TODO: Auto-sync after some operations?
-# TODO: Ignore indexes in the repo? And reindex after each sync??
-# TODO: Remove the IDs of closed tasks
-# TODO: Do not calculate new task ids by finding the last highest task id,
-#       but keep a counter file.
-# TODO: Test with other non-linux but POSIX-compatible OSes.
-# TODO: Implement a non-interactive mode. This is important as to
-#       enable another layer (eg a GUI) to be built on top of this.
-# TODO: How to handle notifications?? Should we?
-# TODO: Make sure this is compatible with bare Bourne Shell and it does
-#       not depend on bash. Advertise this 'feature'
-# TODO: Compare this to "bug", "todoist" and "taskwarrior"
-# TODO: Document: Task tags are delimited by spaces so individual tags cannot
-#       contain spaces
-# TODO: Document: Task names and tags can not include $SEP
-# TODO: Migrate from git to hg? Think about availability and portability
-# TODO: Do analytics from git/hg history??
-#       Who did what and when
-#       Try to generate reports from acquired data (or enable a 3rd party)??
-
 # Globals
 STORAGEDIR=$HOME/.minitodo
 SEP=';'
