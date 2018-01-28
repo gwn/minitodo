@@ -271,8 +271,9 @@ function reprioritize {
   operation=$2
 
   taskfile=$projdir/$taskno/task.yaml
-  priority=$(cat $taskfile | sed '3q;d' | cut -d: -f2 | sed 's/ //')
+  priority=$(select_from_index $taskno priority)
   newpriority=$(expr $priority $operation 1)
+
   sed -i "3s/[0-9]$/$newpriority/" $taskfile
   reindexsingle $taskno
 
@@ -455,11 +456,49 @@ function createindex {
   taskno=$1
   taskfile=$projdir/$taskno/task.yaml
 
-  taskname=$(cat $taskfile | sed '1q;d' | cut -d: -f2 | sed 's/^ \+//')
-  tasktags=$(cat $taskfile | sed '2q;d' | cut -d: -f2 | sed 's/ //')
-  taskpriority=$(cat $taskfile | sed '3q;d' | cut -d: -f2 | sed 's/ //')
+  echo -n $taskno$sep
+  select_from_taskfile $taskno name tags priority | tr ';' $sep
+}
 
-  echo ${taskno}${sep}${taskname}${sep}${tasktags}${sep}${taskpriority}
+function select_from_index {
+  taskno=$1; shift
+  colnames="$@"
+  indexfile=$projdir/index.csv
+  record=$(cat $indexfile | grep ^$taskno$sep)
+  colno=
+  value=
+
+  echo "$colnames" | tr ' ' '\n' | while read colname; do
+    case $colname in
+      name) colno=2 ;;
+      tags) colno=3 ;;
+      priority) colno=4 ;;
+      *) echo ''; return ;;
+    esac
+
+    echo $record | cut -d$sep -f $colno
+  done |\
+  paste -sd';'
+}
+
+function select_from_taskfile {
+  taskno=$1; shift
+  colnames="$@"
+  taskfile=$projdir/$taskno/task.yaml
+  lineno=
+  value=
+
+  echo "$colnames" | tr ' ' '\n' | while read colname; do
+    case $colname in
+      name) lineno=1 ;;
+      tags) lineno=2 ;;
+      priority) lineno=3 ;;
+      *) echo ''; return ;;
+    esac
+
+    cat $taskfile | sed $lineno'q;d' | cut -d: -f2 | sed 's/^ \+//'
+  done |\
+  paste -sd';'
 }
 
 main "$@"
