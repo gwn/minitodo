@@ -2,17 +2,17 @@
 
 # Dependencies: git (optional, only required for syncing)
 
-# TODO: Implement an activity feed
-# TODO: Remove the IDs of closed tasks
 # TODO: UX: Remember the last screen the user was in and display that after
-#       the user ran a command such as reprioritiation or tagging.
+#       the user ran a command such as reprioritization or tagging.
+# TODO: Auto-sync after some operations?
+# TODO: Ignore indexes in the repo? And reindex after each sync??
+# TODO: Remove the IDs of closed tasks
 # TODO: Do not calculate new task ids by finding the last highest task id,
 #       but keep a counter file.
 # TODO: Test with other non-linux but POSIX-compatible OSes.
 # TODO: Implement a non-interactive mode. This is important as to
 #       enable another layer (eg a GUI) to be built on top of this.
 # TODO: How to handle notifications?? Should we?
-# TODO: Resolve all parts having a 'TODO' string in this document
 # TODO: Make sure this is compatible with bare Bourne Shell and it does
 #       not depend on bash. Advertise this 'feature'
 # TODO: Compare this to "bug", "todoist" and "taskwarrior"
@@ -91,6 +91,8 @@ function runcmd {
     close) close "$@" ;;
     cl) close "$@" ;;
     rm) remove "$@" ;;
+    activity) activity "$@" ;;
+    act) activity "$@" ;;
     tags) tags "$@" ;;
     discuss) discuss "$@" ;;
     say) discuss "$@" ;;
@@ -110,7 +112,7 @@ function runcmd {
 
 function usage {
   echo 'Commands:'
-  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | close | cl | rm | sync | reindex'
+  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | close | cl | rm | activity | act | sync | reindex'
 
   echo ''
 
@@ -143,6 +145,8 @@ function usage {
     echo 'close <taskid> | Close and archive task'
     echo 'cl <taskid> | Alias of "close"'
     echo 'rm <taskid> | Remove task'
+    echo 'activity | Display activity log'
+    echo 'act | Alias of "activity"'
     echo 'sync | Send your updates to your target task repository'
     echo 'reindex | Update the index file, for advanced use. If for any reason you suspect that the task list and the task files go out of sync, you can reindex.'
   ) | column -ts'|'
@@ -196,6 +200,8 @@ function new {
   fi
 
   reindexsingle $taskno
+
+  logactivity new $taskno
 
   list
 }
@@ -268,7 +274,9 @@ function attach {
     $FILEBROWSER $attachdir
   fi
 
-  sum $1
+  logactivity attach $taskno
+
+  sum $taskno
 }
 
 function edit {
@@ -277,6 +285,8 @@ function edit {
   $EDITOR $taskfile
 
   reindexsingle $taskno
+
+  logactivity edit $taskno
 
   sum $taskno
 }
@@ -302,19 +312,23 @@ function reprioritize {
   sed -i "3s/[0-9]$/$newpriority/" $taskfile
   reindexsingle $taskno
 
+  logactivity reprioritize $taskno $newpriority
+
   list
 }
 
 function tag {
-  local taskno=$1
-  addtags "$@"
-  sum $1
+  local taskno=$1; shift
+  addtags $taskno "$@"
+  logactivity tag $taskno "$@"
+  sum $taskno
 }
 
 function detag {
-  local taskno=$1
-  rmtags "$@"
-  sum $1
+  local taskno=$1; shift
+  rmtags $taskno "$@"
+  logactivity detag $taskno "$@"
+  sum $taskno
 }
 
 function addtags {
@@ -444,6 +458,8 @@ function close {
 
   mv $PROJDIR/tasks/open/$taskno $PROJDIR/tasks/closed/$taskno
 
+  logactivity close
+
   list
 }
 
@@ -452,7 +468,13 @@ function remove {
   rm -r $PROJDIR/tasks/open/$taskno
   sed -i /^${taskno}${SEP}/d $PROJDIR/index.csv
 
+  logactivity remove $taskno
+
   list
+}
+
+function activity {
+  cat $PROJDIR/activity
 }
 
 function discuss {
@@ -460,10 +482,15 @@ function discuss {
   local discussdir=$PROJDIR/tasks/open/$taskno/discussion
   local timestamp=$(date +%s)
   local commenter=$NAME
+  local commentfilename=$discussdir/$timestamp-$commenter
 
   mkdir -p $discussdir
 
-  $EDITOR $discussdir/$timestamp-$commenter
+  $EDITOR $commentfilename
+
+  if test -f $commentfilename; then
+    logactivity discuss $taskno
+  fi
 
   discussion $1
 }
@@ -485,6 +512,58 @@ function discussion {
     cat $discussdir/$filename
     echo -e '\n'
   done
+}
+
+function logactivity {
+  local action=$1
+  local taskid=$2
+  shift 2
+  local taskname=$(select_from_index $taskid name)
+  local tasksign="#$taskid: \"$taskname\""
+  local user=$NAME
+  local now=$(date +'%d %b %H:%M')
+  local msg
+
+  case $action in
+    new)
+      msg="$user created task $tasksign."
+      ;;
+
+    attach)
+      msg="$user updated attachments of task $tasksign."
+      ;;
+
+    edit)
+      msg="$user edited task $tasksign."
+      ;;
+
+    reprioritize)
+      msg="$user set the priority of task $tasksign to $1."
+      ;;
+
+    tag)
+      msg="$user added tags \"$@\" to task $tasksign."
+      ;;
+
+    detag)
+      msg="$user removed tags \"$@\" from task $tasksign."
+      ;;
+
+    close)
+      msg="$user closed task $tasksign."
+      ;;
+
+    remove)
+      msg="$user removed task $tasksign."
+      ;;
+
+    discuss)
+      msg="$user commented on task $tasksign."
+      ;;
+
+  esac
+
+  echo "$msg" >> $PROJDIR/activity
 }
 
 function sync {

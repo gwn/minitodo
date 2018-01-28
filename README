@@ -31,7 +31,7 @@ Simple command line task manager
 Commands:
 help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag |
 attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title |
-close | cl | rm | sync | reindex
+close | cl | rm | activity | act | sync | reindex
 
 Command details:
 help                                Show this screen
@@ -61,6 +61,8 @@ ls-title <search-text>              List tasks that contain the text <search-tex
 close <taskid>                      Close and archive task
 cl <taskid>                         Alias of "close"
 rm <taskid>                         Remove task completely
+activity                            Display activity log
+act                                 Alias of "activity"
 sync                                Send your updates to your target task repository
 reindex                             Update the index file, for advanced use. If for
                                     any reason you suspect that the task list and the
