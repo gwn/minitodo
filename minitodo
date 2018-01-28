@@ -126,7 +126,7 @@ function usage {
 
 function proj {
   if test -z "$1"; then
-    ls $STORAGEDIR/projects
+    ls -1 $STORAGEDIR/projects
     return
   fi
 
