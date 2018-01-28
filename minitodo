@@ -89,6 +89,8 @@ function runcmd {
     l) list_match_all_tags "$@" ;;
     ls-any) list_match_any_tag "$@" ;;
     ls-title) list_match_title "$@" ;;
+    close) close "$@" ;;
+    cl) close "$@" ;;
     rm) remove "$@" ;;
     tags) tags "$@" ;;
     discuss) discuss "$@" ;;
@@ -109,7 +111,7 @@ function runcmd {
 
 function usage {
   echo 'Commands:'
-  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | rm | sync | reindex'
+  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | close | cl | rm | sync | reindex'
 
   echo ''
 
@@ -139,6 +141,8 @@ function usage {
     echo 'ls <tag1> <tag2> .. | List tasks filtered by all matching tags'
     echo 'ls-any <tag1> <tag2> .. | List tasks filtered by any matching tag'
     echo 'ls-title <search-text> | List tasks that contain the text <search-text> in their title'
+    echo 'close <taskid> | Close and archive task'
+    echo 'cl <taskid> | Alias of "close"'
     echo 'rm <taskid> | Remove task'
     echo 'sync | Send your updates to your target task repository'
     echo 'reindex | Update the index file, for advanced use. If for any reason you suspect that the task list and the task files go out of sync, you can reindex.'
@@ -166,6 +170,7 @@ function makeproj {
   local projdir=$STORAGEDIR/projects/"$projname"
 
   mkdir -p $projdir/tasks/open
+  mkdir $projdir/tasks/closed
   touch $projdir/index.csv
 }
 
@@ -426,6 +431,21 @@ function filterbytag {
       echo $record
     fi
   done
+}
+
+function close {
+  local taskno=$1
+  local indexfile=$PROJDIR/index.csv
+  local indexclosedfile=$PROJDIR/indexclosed.csv
+
+  addtags $taskno _closed_
+
+  createindex $1 >> $indexclosedfile
+  sed -i "/^${taskno}${SEP}/d" $indexfile
+
+  mv $PROJDIR/tasks/open/$taskno $PROJDIR/tasks/closed/$taskno
+
+  list
 }
 
 function remove {
