@@ -63,7 +63,9 @@ function runcmd {
     ls) list_match_all_tags "$@" ;;
     l) list_match_all_tags "$@" ;;
     ls-any) list_match_any_tag "$@" ;;
+    lsa) list_match_any_tag "$@" ;;
     ls-title) list_match_title "$@" ;;
+    lst) list_match_title "$@" ;;
     close) close "$@" ;;
     cl) close "$@" ;;
     rm) remove "$@" ;;
@@ -88,8 +90,9 @@ function runcmd {
 
 function usage {
   echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag |'
-  echo 'detag | attach | discuss | say | discussion | talk | tags | ls |'
-  echo 'ls-any | ls-title | close | cl | rm | activity | act | sync | reindex'
+  echo 'detag | attach | discuss | say | discussion | talk | tags | ls | l |'
+  echo 'ls-any | lsa | ls-title | lst | close | cl | rm | activity | act |'
+  echo 'sync | reindex'
 
   echo ''
 
