@@ -2,11 +2,11 @@
 Simple command line task manager
 
 ### Features
-- Simple, having around only 20 commands, with no flags or
+- Simple, having around only 20 commands, with no flags or  
   complicated options. Can be completely mastered in 20 minutes.
-- Supports tag based categorization & filtering, attachments,
+- Supports tag based categorization & filtering, attachments,  
   comments, and synchronization.
-- The only dependency is Git, which is only required if you
+- The only dependency is Git, which is only required if you  
   want to work with others.
 
 ### Demo
