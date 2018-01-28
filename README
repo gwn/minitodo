@@ -1,24 +1,19 @@
 Simple command line task manager
 
-## Features:
-- Simple, having around only 10 commands, with no flags or complicated
-  options. Can be completely mastered in 15 minutes.
-- Supports attachments, comments, tag based categorization and filtering
-- Supports synchronization with git
-- Small and hackable codebase (If you like Shell)
-- Leverages existing tools. Lets users edit task titles, tags and
-  descriptions with their own editor. Lets them handle attachments
-  simply by using their own file browsers. This way prevents inflation
-  of subcommands and flags; becoming more accessible to less technical
-  users. Handles synchronization with peers using git, instead of
-  inventing protocols or configuring task servers.
+## Features
+- Simple, having around only 20 commands, with no flags or
+  complicated options. Can be completely mastered in 20 minutes.
+- Supports tag based categorization & filtering, attachments,
+  comments, and synchronization.
+- The only dependency is Git, which is only required if you
+  want to work with others.
 
-## Demo:
+## Demo
 [Asciinema Video](https://asciinema.org/a/GhK92TQN71c7Z5oAbujDKDsEq)
 
-## Dependencies:
-- A POSIX compatible environment (MacOS, Linux, BSDs, Cygwin in Windows, ..)
-- Git (only required if you will use syncing)
+## Supported platforms
+All POSIX compatible environments are supported.  
+(MacOS, Linux, BSDs, Cygwin in Windows, ..)
 
 ## Installation
 

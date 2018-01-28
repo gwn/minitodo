@@ -1,5 +1,6 @@
 - UX: Remember the last screen the user was in and display that after
   the user ran a command such as reprioritization or tagging.
+- Sorting and limiting??
 - Auto-sync after some operations?
 - Ignore indexes in the repo? And reindex after each sync??
 - Remove the IDs of closed tasks
