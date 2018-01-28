@@ -180,7 +180,7 @@ function new {
 
   reindexsingle $taskno
 
-  sum $taskno
+  list
 }
 
 function sum {
