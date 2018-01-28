@@ -2,7 +2,6 @@
 
 # Dependencies: git (optional, only required for syncing)
 
-# TODO: Separate tags with spaces instead of commas in source files
 # TODO: Remove the IDs of closed tasks
 # TODO: UX: Remember the last screen the user was in and display that after
 #       the user ran a command such as reprioritiation or tagging.
@@ -333,7 +332,7 @@ function updatetags {
   local subcmd=$2
   shift 2
   local enteredtags=$(echo "$@" | tr ' ' '\n')
-  local currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
+  local currenttags=$(select_from_taskfile $taskno tags | tr ' ' '\n')
   local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
   local updatedtags
 
@@ -342,9 +341,9 @@ function updatetags {
                   | grep -v ^$ \
                   | sort \
                   | uniq \
-                  | paste -sd,)
+                  | paste -sd' ')
   elif test $subcmd = remove; then
-    updatedtags=$(echo "$currenttags" | grep -Fxv "$enteredtags" | paste -sd,)
+    updatedtags=$(echo "$currenttags" | grep -Fxv "$enteredtags" | paste -sd' ')
   fi
 
   sed -i "2s/.*/tags: $updatedtags/" $taskfile
@@ -354,7 +353,7 @@ function updatetags {
 
 function tags {
   local indexfile=$PROJDIR/index.csv
-  cat $indexfile | cut -d$SEP -f3 | tr , '\n' | sort | uniq -c | sort -nr
+  cat $indexfile | cut -d$SEP -f3 | tr ' ' '\n' | sort | uniq -c | sort -nr
 }
 
 function list_match_all_tags {
@@ -415,7 +414,7 @@ function filterbytag {
   local totalsearchtags=$(echo "$searchtags" | wc -l)
 
   cat $targetfile | while read record; do
-    local recordtags=$(echo $record | cut -d$SEP -f 3 | tr , '\n')
+    local recordtags=$(echo $record | cut -d$SEP -f 3 | tr ' ' '\n')
 
     local totalmatchingtags=$(
       echo "$recordtags" | grep -Fx "$searchtags" | wc -l
