@@ -60,11 +60,11 @@ function boot {
 
   if test -z "$projname"; then
     projname=default
+    makeproj default
     echo $projname > $storagedir/projname
   fi
 
   projdir=$storagedir/$projname
-  mkdir -p $projdir
 }
 
 function runcmd {
@@ -150,11 +150,20 @@ function proj {
     return
   fi
 
+  makeproj "$1"
+
   projname="$1"
   projdir=$storagedir/$projname
+
   echo $projname > $storagedir/projname
-  mkdir -p $projdir
+
   runcmd ls
+}
+
+function makeproj {
+  local projname="$1"
+  local projdir=$storagedir/"$projname"
+  mkdir -p $projdir
 }
 
 function new {
