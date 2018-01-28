@@ -112,7 +112,9 @@ function runcmd {
 
 function usage {
   echo 'Commands:'
-  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag | attach | discuss | say | discussion | talk | tags | ls | ls-any | ls-title | close | cl | rm | activity | act | sync | reindex'
+  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag |'
+  echo 'detag | attach | discuss | say | discussion | talk | tags | ls |'
+  echo 'ls-any | ls-title | close | cl | rm | activity | act | sync | reindex'
 
   echo ''
 
