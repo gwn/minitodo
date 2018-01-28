@@ -1,6 +1,7 @@
+### Minitodo
 Simple command line task manager
 
-## Features
+### Features
 - Simple, having around only 20 commands, with no flags or
   complicated options. Can be completely mastered in 20 minutes.
 - Supports tag based categorization & filtering, attachments,
@@ -8,20 +9,20 @@ Simple command line task manager
 - The only dependency is Git, which is only required if you
   want to work with others.
 
-## Demo
+### Demo
 [Asciinema Video](https://asciinema.org/a/mh3BCiHVr9AvC4cihMpw1WAL1)
 
-## Supported platforms
+### Supported platforms
 All POSIX compatible environments are supported.  
 (MacOS, Linux, BSDs, Cygwin in Windows, ..)
 
-## Installation
+### Installation
 
     make config  # or cp config.example config; vi config
     make install
     make install-config
 
-## Documentation
+### Documentation
 
 Commands:
 help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag | detag |
