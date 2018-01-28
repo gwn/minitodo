@@ -17,7 +17,8 @@ Simple command line task manager
 [Asciinema Video](https://asciinema.org/a/GhK92TQN71c7Z5oAbujDKDsEq)
 
 ## Dependencies:
-A POSIX compatible environment and Git are the only dependencies at the moment
+- A POSIX compatible environment (MacOS, Linux, BSDs, Cygwin in Windows, ..)
+- Git (only required if you will use syncing)
 
 ## Installation
 

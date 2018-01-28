@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Dependencies: git
+# Dependencies: git (optional, only required for syncing)
 
 # TODO: Do not calculate new task ids by finding the last highest task id,
 #       but keep a counter file.
@@ -51,8 +51,6 @@ function main {
 }
 
 function boot {
-  checkconfig
-
   touch $storagedir/projname
   projname=$(cat $storagedir/projname)
 
@@ -63,16 +61,6 @@ function boot {
 
   projdir=$storagedir/$projname
   mkdir -p $projdir
-}
-
-function checkconfig {
-  if test -z $FILEBROWSER; then
-    echo You did not provide a filebrowser!
-    exit 2
-  elif ! test -r $GITCONFIG_PATH; then
-    echo Your gitconfig file could not be found! Please configure it!
-    exit 2
-  fi
 }
 
 function runcmd {
@@ -229,6 +217,12 @@ function sum {
 function attach {
   taskno=$1
   attachdir=$projdir/$taskno/attachments
+
+  if test -z $FILEBROWSER; then
+    echo You did not provide a filebrowser!! Please configure it!
+    echo Attach cancelled!
+    return
+  fi
 
   if test -z $taskno; then
     echo 'You must provide a task number!'
@@ -395,6 +389,18 @@ function discussion {
 }
 
 function sync {
+  if ! which git; then
+    echo You need to have Git installed to be able to synchronize!!
+    echo Sync cancelled!
+    return
+  fi
+
+  if ! test -r $GITCONFIG_PATH; then
+    echo Your gitconfig file could not be found! Please configure it!
+    echo Sync cancelled!
+    return
+  fi
+
   if test -n "$1"; then
     syncnote="$1"
   else
