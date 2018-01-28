@@ -316,26 +316,36 @@ function detag {
 
 function addtags {
   local taskno=$1; shift
-  local newtags=$(echo "$@" | tr ' ' '\n')
-  local currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
-  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+  local tags="$@"
 
-  local updatedtags=$(
-    echo -e "$newtags\n$currenttags" | grep -v ^$ | sort | uniq | paste -sd,
-  )
-
-  sed -i "2s/.*/tags: $updatedtags/" $taskfile
-
-  reindexsingle $taskno
+  updatetags $taskno add "$tags"
 }
 
 function rmtags {
   local taskno=$1; shift
-  local tagstodelete=$(echo "$@" | tr ' ' '\n')
+  local tags="$@"
+
+  updatetags $taskno remove "$tags"
+}
+
+function updatetags {
+  local taskno=$1
+  local subcmd=$2
+  shift 2
+  local enteredtags=$(echo "$@" | tr ' ' '\n')
   local currenttags=$(select_from_taskfile $taskno tags | tr , '\n')
   local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+  local updatedtags
 
-  local updatedtags=$(echo "$currenttags" | grep -Fxv "$tagstodelete")
+  if test $subcmd = add; then
+    updatedtags=$(echo -e "$enteredtags\n$currenttags" \
+                  | grep -v ^$ \
+                  | sort \
+                  | uniq \
+                  | paste -sd,)
+  elif test $subcmd = remove; then
+    updatedtags=$(echo "$currenttags" | grep -Fxv "$enteredtags" | paste -sd,)
+  fi
 
   sed -i "2s/.*/tags: $updatedtags/" $taskfile
 
