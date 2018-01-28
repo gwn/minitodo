@@ -33,32 +33,32 @@ Commands:
 
 Command details:
 
-    help                                 Show this screen
-    quit or q                            Quit
-    proj                                 List projects
-    proj <projname>                      Switch to project
-    new                                  Create new task
-    sum <taskid> or <taskid>             Show task summary
-    ed <taskid>                          Edit basic task info
-    up <taskid>                          Increase the priority of the task by 1
-    down <taskid>                        Decrease the priority of the task by 1
-    tag <taskid> <tag1> [<tag2> ...]     Add tags to task
-    detag <taskid> <tag1> [<tag2> ...]   Remove tags from task
-    attach <taskid>                      Open attachments directory
-    discuss <taskid> or say <taskid>     Add a new comment to this task
-    discussion <taskid> or talk <taskid> List all comments of this task
-    tags                                 Show all tags
-    ls or l                              List all tasks
-    ls or l <tag1> <tag2> ..             List tasks filtered by all matching tags
-    ls-any or lsa <tag1> <tag2> ..       List tasks filtered by any matching tag
-    ls-title or lst <search-text>        List tasks that contain the text
-                                         <search-text> in their title
-    close <taskid> or cl <taskid>        Close and archive task
-    rm <taskid>                          Remove task
-    activity or act                      Display activity log
-    sync                                 Send your updates to your target task
-                                         repository
-    reindex                              Update the index file, for advanced
-                                         use. If for any reason you suspect that
-                                         the task list and the task files go out
-                                         of sync, you can reindex.
+    help                           Show this screen
+    quit or q                      Quit
+    proj                           List projects
+    proj <name>                    Switch to project
+    new                            Create new task
+    sum <id> or <id>               Show task summary
+    ed <id>                        Edit basic task info
+    up <id>                        Increase the priority of the task by 1
+    down <id>                      Decrease the priority of the task by 1
+    tag <id> <tag1> [<tag2> ..]    Add tags to task
+    detag <id> <tag1> [<tag2> ..]  Remove tags from task
+    attach <id>                    Open attachments directory
+    discuss or say <id>            Add a new comment to this task
+    discussion or talk <id>        List all comments of this task
+    tags                           Show all tags
+    ls or l                        List all tasks
+    ls or l <tag1> <tag2> ..       List tasks filtered by all matching tags
+    ls-any or lsa <tag1> <tag2> .. List tasks filtered by any matching tag
+    ls-title or lst <search-text>  List tasks that contain the text
+                                   <search-text> in their title
+    close or cl <id>               Close and archive task
+    rm <id>                        Remove task
+    activity or act                Display activity log
+    sync                           Send your updates to your target task
+                                   repository
+    reindex                        Update the index file, for advanced
+                                   use. If for any reason you suspect that
+                                   the task list and the task files go out
+                                   of sync, you can reindex.
