@@ -535,7 +535,7 @@ function logactivity {
 
   esac
 
-  echo "$msg" >> $PROJDIR/activity
+  echo "$now: $msg" >> $PROJDIR/activity
 }
 
 function sync {
