@@ -32,7 +32,6 @@ projdir=
 source $storagedir/config
 
 function main {
-  checkconfig
   boot
 
   clear
@@ -51,17 +50,9 @@ function main {
   done
 }
 
-function checkconfig {
-  if test -z $FILEBROWSER; then
-    echo You did not provide a filebrowser!
-    exit 2
-  elif ! test -r $GITCONFIG_PATH; then
-    echo Your gitconfig file could not be found! Please configure it!
-    exit 2
-  fi
-}
-
 function boot {
+  checkconfig
+
   touch $storagedir/projname
   projname=$(cat $storagedir/projname)
 
@@ -72,6 +63,16 @@ function boot {
 
   projdir=$storagedir/$projname
   mkdir -p $projdir
+}
+
+function checkconfig {
+  if test -z $FILEBROWSER; then
+    echo You did not provide a filebrowser!
+    exit 2
+  elif ! test -r $GITCONFIG_PATH; then
+    echo Your gitconfig file could not be found! Please configure it!
+    exit 2
+  fi
 }
 
 function runcmd {
