@@ -101,7 +101,8 @@ usage() {
     echo 'quit or q | Quit'
     echo 'proj | List projects'
     echo 'proj <name> | Switch to project'
-    echo 'new | Create new task'
+    echo 'new | Open system editor to create new task'
+    echo 'new <name> | Create new task immediately with the given name'
     echo 'sum <id> or <id> | Show task summary'
     echo 'ed <id> | Edit basic task info'
     echo 'up <id> | Increase the priority of the task by 1'
@@ -150,6 +151,7 @@ makeproj() {
 }
 
 new() {
+  optionaltaskname="$@"
   lasttaskno=$(
     ls $PROJDIR/tasks/open | sort -hr | head -n 1
   )
@@ -167,7 +169,11 @@ new() {
 
   echo "$template" > $tmptaskfile
 
-  $EDITOR $tmptaskfile
+  if test -n "$optionaltaskname"; then
+    sed -i "1s/$/$optionaltaskname/" $tmptaskfile
+  else
+    $EDITOR $tmptaskfile
+  fi
 
   if echo "$template" | diff - $tmptaskfile >/dev/null; then
     # user did not change or save the file

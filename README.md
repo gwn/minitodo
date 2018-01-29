@@ -54,7 +54,8 @@ Command details:
     quit or q                      Quit
     proj                           List projects
     proj <name>                    Switch to project
-    new                            Create new task
+    new                            Open system editor to create a new task
+    new <name>                     Create new task immediately with the given name
     sum <id> or <id>               Show task summary
     ed <id>                        Edit basic task info
     up <id>                        Increase the priority of the task by 1
