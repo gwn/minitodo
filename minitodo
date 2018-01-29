@@ -1,16 +1,16 @@
 #!/bin/sh
 
 # Globals
-STORAGEDIR=$HOME/.minitodo
+STORAGEDIR="$HOME/.minitodo"
 SEP=';'
 PROJNAME=
 PROJDIR=
 
 # Import config globals, $NAME and $FILEBROWSER
-source $STORAGEDIR/config
+. "$STORAGEDIR/config"
 
-function main {
-  local cmd
+main() {
+  cmd=
 
   boot
 
@@ -30,7 +30,7 @@ function main {
   done
 }
 
-function boot {
+boot() {
   touch $STORAGEDIR/projname
   PROJNAME=$(cat $STORAGEDIR/projname)
 
@@ -43,8 +43,8 @@ function boot {
   PROJDIR=$STORAGEDIR/projects/$PROJNAME
 }
 
-function runcmd {
-  local cmd=$1; shift
+runcmd() {
+  cmd=$1; shift
 
   clear
   echo -e Project "\"$PROJNAME\"\n"
@@ -88,7 +88,7 @@ function runcmd {
   esac
 }
 
-function usage {
+usage() {
   echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag |'
   echo 'detag | attach | discuss | say | discussion | talk | tags | ls | l |'
   echo 'ls-any | lsa | ls-title | lst | close | cl | rm | activity | act |'
@@ -124,7 +124,7 @@ function usage {
   } | column -ts'|'
 }
 
-function proj {
+proj() {
   if test -z "$1"; then
     ls -1 $STORAGEDIR/projects
     return
@@ -140,22 +140,22 @@ function proj {
   runcmd ls
 }
 
-function makeproj {
-  local projname="$1"
-  local projdir=$STORAGEDIR/projects/"$projname"
+makeproj() {
+  projname="$1"
+  projdir=$STORAGEDIR/projects/"$projname"
 
   mkdir -p $projdir/tasks/open
   mkdir $projdir/tasks/closed
   touch $projdir/index.csv
 }
 
-function new {
-  local lasttaskno=$(
+new() {
+  lasttaskno=$(
     ls $PROJDIR/tasks/open | sort -hr | head -n 1
   )
-  local taskno=$(expr $lasttaskno + 1)
-  local taskdir=$PROJDIR/tasks/open/$taskno
-  local taskfile=$taskdir/task.yaml
+  taskno=$(expr $lasttaskno + 1)
+  taskdir=$PROJDIR/tasks/open/$taskno
+  taskfile=$taskdir/task.yaml
 
   mkdir $taskdir
 
@@ -178,13 +178,17 @@ function new {
   list
 }
 
-function sum {
-  local taskno=$1
-  local taskdir=$PROJDIR/tasks/open/$taskno
-  local attachdir=$taskdir/attachments
-  local discussdir=$taskdir/discussion
-  local totalattachments filename filetype filesize
-  local totalcomments commenters
+sum() {
+  taskno=$1
+  taskdir=$PROJDIR/tasks/open/$taskno
+  attachdir=$taskdir/attachments
+  discussdir=$taskdir/discussion
+  totalattachments=
+  filename=
+  filetype=
+  filesize=
+  totalcomments=
+  commenters=
 
   if ! test -d $taskdir; then
     echo "Task #$taskno does not exist!"
@@ -222,9 +226,9 @@ function sum {
   echo ''
 }
 
-function attach {
-  local taskno=$1
-  local attachdir=$PROJDIR/tasks/open/$taskno/attachments
+attach() {
+  taskno=$1
+  attachdir=$PROJDIR/tasks/open/$taskno/attachments
 
   if test -z $FILEBROWSER; then
     echo You did not provide a filebrowser!! Please configure it!
@@ -251,9 +255,9 @@ function attach {
   sum $taskno
 }
 
-function edit {
-  local taskno=$1
-  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+edit() {
+  taskno=$1
+  taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
   $EDITOR $taskfile
 
   reindexsingle $taskno
@@ -263,23 +267,23 @@ function edit {
   sum $taskno
 }
 
-function up {
-  local taskno=$1
+up() {
+  taskno=$1
   reprioritize $taskno '+'
 }
 
-function down {
-  local taskno=$1
+down() {
+  taskno=$1
   reprioritize $taskno '-'
 }
 
-function reprioritize {
-  local taskno=$1
-  local operation=$2
+reprioritize() {
+  taskno=$1
+  operation=$2
 
-  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
-  local priority=$(select_from_index $taskno priority)
-  local newpriority=$(expr $priority $operation 1)
+  taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+  priority=$(select_from_index $taskno priority)
+  newpriority=$(expr $priority $operation 1)
 
   sed -i "3s/[0-9]$/$newpriority/" $taskfile
   reindexsingle $taskno
@@ -289,42 +293,42 @@ function reprioritize {
   list
 }
 
-function tag {
-  local taskno=$1; shift
+tag() {
+  taskno=$1; shift
   addtags $taskno "$@"
   logactivity tag $taskno "$@"
   sum $taskno
 }
 
-function detag {
-  local taskno=$1; shift
+detag() {
+  taskno=$1; shift
   rmtags $taskno "$@"
   logactivity detag $taskno "$@"
   sum $taskno
 }
 
-function addtags {
-  local taskno=$1; shift
-  local tags="$@"
+addtags() {
+  taskno=$1; shift
+  tags="$@"
 
   updatetags $taskno add "$tags"
 }
 
-function rmtags {
-  local taskno=$1; shift
-  local tags="$@"
+rmtags() {
+  taskno=$1; shift
+  tags="$@"
 
   updatetags $taskno remove "$tags"
 }
 
-function updatetags {
-  local taskno=$1
-  local subcmd=$2
+updatetags() {
+  taskno=$1
+  subcmd=$2
   shift 2
-  local enteredtags=$(echo "$@" | tr ' ' '\n')
-  local currenttags=$(select_from_taskfile $taskno tags | tr ' ' '\n')
-  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
-  local updatedtags
+  enteredtags=$(echo "$@" | tr ' ' '\n')
+  currenttags=$(select_from_taskfile $taskno tags | tr ' ' '\n')
+  taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+  updatedtags=
 
   if test $subcmd = add; then
     updatedtags=$(echo -e "$enteredtags\n$currenttags" \
@@ -341,29 +345,29 @@ function updatetags {
   reindexsingle $taskno
 }
 
-function tags {
-  local indexfile=$PROJDIR/index.csv
+tags() {
+  indexfile=$PROJDIR/index.csv
   cat $indexfile | cut -d$SEP -f3 | tr ' ' '\n' | sort | uniq -c | sort -nr
 }
 
-function list_match_all_tags {
+list_match_all_tags() {
   list tagfilter "$@"
 }
 
-function list_match_any_tag {
+list_match_any_tag() {
   list tagfilterany "$@"
 }
 
-function list_match_title {
+list_match_title() {
   list titlefilter "$@"
 }
 
-function list {
-  local subcmd=$1; shift
-  local filter="$@"
-  local headerline=no${SEP}name${SEP}tags${SEP}pri
-  local indexfile=$PROJDIR/index.csv
-  local indexrecordnum=$(cat $indexfile 2>/dev/null | wc -l)
+list() {
+  subcmd=$1; shift
+  filter="$@"
+  headerline=no${SEP}name${SEP}tags${SEP}pri
+  indexfile=$PROJDIR/index.csv
+  indexrecordnum=$(cat $indexfile 2>/dev/null | wc -l)
 
   if test $indexrecordnum -eq 0; then
     echo 'Nothing to do! Yeah!!'
@@ -387,8 +391,9 @@ function list {
   echo -e "$headerline\n$body" | column -ts $SEP
 }
 
-function filterbytag {
-  local mode record
+filterbytag() {
+  mode=
+  record=
 
   if test $1 = '-any'; then
     shift
@@ -397,18 +402,16 @@ function filterbytag {
     mode='all'
   fi
 
-  local targetfile=$1
-  local filter="$2"
+  targetfile=$1
+  filter="$2"
 
-  local searchtags=$(echo "$filter" | tr ' ' '\n')
-  local totalsearchtags=$(echo "$searchtags" | wc -l)
+  searchtags=$(echo "$filter" | tr ' ' '\n')
+  totalsearchtags=$(echo "$searchtags" | wc -l)
 
   cat $targetfile | while read record; do
-    local recordtags=$(echo $record | cut -d$SEP -f 3 | tr ' ' '\n')
+    recordtags=$(echo $record | cut -d$SEP -f 3 | tr ' ' '\n')
 
-    local totalmatchingtags=$(
-      echo "$recordtags" | grep -Fx "$searchtags" | wc -l
-    )
+    totalmatchingtags=$(echo "$recordtags" | grep -Fx "$searchtags" | wc -l)
 
     if test $mode = 'any' -a $totalmatchingtags -gt 0; then
       echo $record
@@ -418,10 +421,10 @@ function filterbytag {
   done
 }
 
-function close {
-  local taskno=$1
-  local indexfile=$PROJDIR/index.csv
-  local indexclosedfile=$PROJDIR/indexclosed.csv
+close() {
+  taskno=$1
+  indexfile=$PROJDIR/index.csv
+  indexclosedfile=$PROJDIR/indexclosed.csv
 
   addtags $taskno _closed_
 
@@ -435,7 +438,7 @@ function close {
   list
 }
 
-function remove {
+remove() {
   taskno=$1
   rm -r $PROJDIR/tasks/open/$taskno
   sed -i /^${taskno}${SEP}/d $PROJDIR/index.csv
@@ -445,16 +448,16 @@ function remove {
   list
 }
 
-function activity {
+activity() {
   cat $PROJDIR/activity
 }
 
-function discuss {
-  local taskno=$1
-  local discussdir=$PROJDIR/tasks/open/$taskno/discussion
-  local timestamp=$(date +%s)
-  local commenter=$NAME
-  local commentfilename=$discussdir/$timestamp-$commenter
+discuss() {
+  taskno=$1
+  discussdir=$PROJDIR/tasks/open/$taskno/discussion
+  timestamp=$(date +%s)
+  commenter=$NAME
+  commentfilename=$discussdir/$timestamp-$commenter
 
   mkdir -p $discussdir
 
@@ -467,11 +470,13 @@ function discuss {
   discussion $1
 }
 
-function discussion {
-  local taskno=$1
-  local discussdir=$PROJDIR/tasks/open/$taskno/discussion
-  local taskname=$(createindex $1 | cut -d$SEP -f2)
-  local commenttimestamp commenter commentdate
+discussion() {
+  taskno=$1
+  discussdir=$PROJDIR/tasks/open/$taskno/discussion
+  taskname=$(createindex $1 | cut -d$SEP -f2)
+  commenttimestamp=
+  commenter=
+  commentdate=
 
   echo -e "Discussion of #$taskno $taskname:\n"
 
@@ -486,15 +491,15 @@ function discussion {
   done
 }
 
-function logactivity {
-  local action=$1
-  local taskid=$2
+logactivity() {
+  action=$1
+  taskid=$2
   shift 2
-  local taskname=$(select_from_index $taskid name)
-  local tasksign="#$taskid: \"$taskname\""
-  local user=$NAME
-  local now=$(date +'%d %b %H:%M')
-  local msg
+  taskname=$(select_from_index $taskid name)
+  tasksign="#$taskid: \"$taskname\""
+  user=$NAME
+  now=$(date +'%d %b %H:%M')
+  msg=
 
   case $action in
     new)
@@ -538,8 +543,8 @@ function logactivity {
   echo "$now: $msg" >> $PROJDIR/activity
 }
 
-function sync {
-  local syncnote
+sync() {
+  syncnote=
 
   if ! which git; then
     echo You need to have Git installed to be able to synchronize!!
@@ -581,9 +586,10 @@ function sync {
   popd 2>/dev/null
 }
 
-function reindex {
-  local indexfile=$PROJDIR/index.csv
-  local taskno updatedindex
+reindex() {
+  indexfile=$PROJDIR/index.csv
+  taskno=
+  updatedindex=
 
   cat /dev/null > $indexfile
 
@@ -593,10 +599,10 @@ function reindex {
   done
 }
 
-function reindexsingle {
-  local taskno=$1
-  local updatedindex=$(createindex $taskno)
-  local indexfile=$PROJDIR/index.csv
+reindexsingle() {
+  taskno=$1
+  updatedindex=$(createindex $taskno)
+  indexfile=$PROJDIR/index.csv
 
   touch $indexfile
 
@@ -607,20 +613,21 @@ function reindexsingle {
   fi
 }
 
-function createindex {
-  local taskno=$1
-  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+createindex() {
+  taskno=$1
+  taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
 
   echo -n $taskno$SEP
   select_from_taskfile $taskno name tags priority | tr ';' $SEP
 }
 
-function select_from_index {
-  local taskno=$1; shift
-  local colnames="$@"
-  local indexfile=$PROJDIR/index.csv
-  local record=$(cat $indexfile | grep ^$taskno$SEP)
-  local colname colno
+select_from_index() {
+  taskno=$1; shift
+  colnames="$@"
+  indexfile=$PROJDIR/index.csv
+  record=$(cat $indexfile | grep ^$taskno$SEP)
+  colname=
+  colno=
 
   echo "$colnames" | tr ' ' '\n' | while read colname; do
     case $colname in
@@ -635,11 +642,12 @@ function select_from_index {
   paste -sd';'
 }
 
-function select_from_taskfile {
-  local taskno=$1; shift
-  local colnames="$@"
-  local taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
-  local colname lineno
+select_from_taskfile() {
+  taskno=$1; shift
+  colnames="$@"
+  taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
+  colname=
+  lineno=
 
   echo "$colnames" | tr ' ' '\n' | while read colname; do
     case $colname in
