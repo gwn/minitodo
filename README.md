@@ -62,7 +62,8 @@ Command details:
     down <id>                      Decrease the priority of the task by 1
     tag <id> <tag1> [<tag2> ..]    Add tags to task
     detag <id> <tag1> [<tag2> ..]  Remove tags from task
-    attach <id>                    Open attachments directory
+    attach <id>                    Open attachments directory with the
+                                   configured file browser
     discuss or say <id>            Add a new comment to this task
     discussion or talk <id>        List all comments of this task
     tags                           Show all tags
