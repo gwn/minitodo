@@ -43,7 +43,7 @@ and is still in alpha phase.
 
 Commands:
 
-    help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag |
+    help | quit | q | proj | p | new | sum | <taskid> | ed | up | down | tag |
     detag | attach | discuss | say | discussion | talk | tags | ls | l |
     ls-any | lsa | ls-title | lst | close | cl | rm | activity | act | sync |
     reindex
@@ -52,8 +52,8 @@ Command details:
 
     help                           Show this screen
     quit or q                      Quit
-    proj                           List projects
-    proj <name>                    Switch to project
+    proj or p                      List projects
+    proj or p <name>               Switch to project
     new                            Open system editor to create a new task
     new <name>                     Create new task immediately with the given name
     sum <id> or <id>               Show task summary

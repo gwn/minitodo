@@ -52,6 +52,7 @@ runcmd() {
   case $cmd in
     help) usage "$@" ;;
     proj) proj "$@" ;;
+    p) proj "$@" ;;
     new) new "$@" ;;
     sum) sum "$@" ;;
     attach) attach "$@" ;;
@@ -89,18 +90,18 @@ runcmd() {
 }
 
 usage() {
-  echo 'help | quit | q | proj | new | sum | <taskid> | ed | up | down | tag |'
-  echo 'detag | attach | discuss | say | discussion | talk | tags | ls | l |'
-  echo 'ls-any | lsa | ls-title | lst | close | cl | rm | activity | act |'
-  echo 'sync | reindex'
+  echo 'help | quit | q | proj | p | new | sum | <taskid> | ed | up | down |'
+  echo 'tag | detag | attach | discuss | say | discussion | talk | tags |'
+  echo 'ls | l | ls-any | lsa | ls-title | lst | close | cl | rm | activity |'
+  echo 'act | sync | reindex'
 
   echo ''
 
   {
     echo 'help | Show this screen'
     echo 'quit or q | Quit'
-    echo 'proj | List projects'
-    echo 'proj <name> | Switch to project'
+    echo 'proj or p | List projects'
+    echo 'proj or p <name> | Switch to project'
     echo 'new | Open system editor to create new task'
     echo 'new <name> | Create new task immediately with the given name'
     echo 'sum <id> or <id> | Show task summary'
