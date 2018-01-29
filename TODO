@@ -1,3 +1,5 @@
+- Use shellcheck.net to make the script compatible with
+  POSIX sh.
 - UX: Remember the last screen the user was in after (s)he
   runs a command such as reprioritization or tagging.
 - Sorting and limiting??
@@ -13,8 +15,6 @@
 - How to handle notifications?? Should we? What about let users enter
   their SMTP info and let them send mails according to others'
   notification settings??
-- Make sure this is compatible with bare Bourne Shell and it does
-  not depend on bash. Advertise this 'feature'
 - Document: Task tags are delimited by spaces so individual tags cannot
   contain spaces
 - Document: Task names and tags can not include $SEP
