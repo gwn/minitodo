@@ -558,7 +558,7 @@ sync() {
     syncnote='love me two times baby'
   fi
 
-  pushd $PROJDIR 2>/dev/null
+  pushd $PROJDIR >/dev/null
 
   if test -d .git; then
     git fetch
@@ -583,7 +583,7 @@ sync() {
     git push origin master
   fi
 
-  popd 2>/dev/null
+  popd >/dev/null
 }
 
 reindex() {
