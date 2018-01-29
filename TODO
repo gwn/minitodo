@@ -1,5 +1,9 @@
 - Use shellcheck.net to make the script compatible with
   POSIX sh.
+- Add flags for interactive/non-interactive mode and screen clearing.
+  Decide on the default mode (interactive/non-interactive)
+- Implement a non-interactive mode. Current version is not programmable.
+  Not cool.
 - UX: Remember the last screen the user was in after (s)he
   runs a command such as reprioritization or tagging.
 - Sorting and limiting??
@@ -10,8 +14,6 @@
 - Do not calculate new task ids by finding the last highest task id,
   instead make use of a counter file.
 - Test with other non-linux but POSIX-compatible OSes.
-- Implement a non-interactive mode. Current version is not programmable.
-  Not cool.
 - How to handle notifications?? Should we? What about let users enter
   their SMTP info and let them send mails according to others'
   notification settings??

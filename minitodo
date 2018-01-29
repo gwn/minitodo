@@ -15,12 +15,12 @@ main() {
   boot
 
   clear
-  echo -e Project "\"$PROJNAME\"\n"
+  echo -e Project "\"$PROJNAME\"\\n"
   list
 
   while true; do
-    echo -en "\n> "
-    read cmd
+    echo -en "\\n> "
+    read -r cmd
 
     if test "$cmd" = quit -o "$cmd" = q; then
       break
@@ -47,7 +47,7 @@ runcmd() {
   cmd=$1; shift
 
   clear
-  echo -e Project "\"$PROJNAME\"\n"
+  echo -e Project "\"$PROJNAME\"\\n"
 
   case $cmd in
     help) usage "$@" ;;
@@ -153,17 +153,19 @@ new() {
   lasttaskno=$(
     ls $PROJDIR/tasks/open | sort -hr | head -n 1
   )
-  taskno=$(expr $lasttaskno + 1)
+  taskno=$((lasttaskno + 1))
   taskdir=$PROJDIR/tasks/open/$taskno
   taskfile=$taskdir/task.yaml
 
   mkdir $taskdir
 
-  echo 'name: ' >> $taskfile
-  echo 'tags: ' >> $taskfile
-  echo 'priority: 5' >> $taskfile
-  echo 'description: | ' >> $taskfile
-  echo '  ' >> $taskfile
+  {
+    echo 'name: '
+    echo 'tags: '
+    echo 'priority: 5'
+    echo 'description: | '
+    echo '  '
+  } > $taskfile
 
   $EDITOR $taskfile
 
@@ -207,7 +209,7 @@ sum() {
   else
     echo ''
 
-    ls $attachdir | while read filename; do
+    ls $attachdir | while read -r filename; do
       filetype=$(file -b --mime-type $attachdir/$filename)
       filesize=$(du -h $attachdir/$filename | cut -f1)
       echo $filename,$filetype,$filesize
@@ -283,7 +285,7 @@ reprioritize() {
 
   taskfile=$PROJDIR/tasks/open/$taskno/task.yaml
   priority=$(select_from_index $taskno priority)
-  newpriority=$(expr $priority $operation 1)
+  newpriority=$(($priority $operation 1))
 
   sed -i "3s/[0-9]$/$newpriority/" $taskfile
   reindexsingle $taskno
@@ -331,7 +333,7 @@ updatetags() {
   updatedtags=
 
   if test $subcmd = add; then
-    updatedtags=$(echo -e "$enteredtags\n$currenttags" \
+    updatedtags=$(echo -e "$enteredtags\\n$currenttags" \
                   | grep -v ^$ \
                   | sort \
                   | uniq \
@@ -347,7 +349,7 @@ updatetags() {
 
 tags() {
   indexfile=$PROJDIR/index.csv
-  cat $indexfile | cut -d$SEP -f3 | tr ' ' '\n' | sort | uniq -c | sort -nr
+  <$indexfile cut -d$SEP -f3 | tr ' ' '\n' | sort | uniq -c | sort -nr
 }
 
 list_match_all_tags() {
@@ -367,7 +369,7 @@ list() {
   filter="$@"
   headerline=no${SEP}name${SEP}tags${SEP}pri
   indexfile=$PROJDIR/index.csv
-  indexrecordnum=$(cat $indexfile 2>/dev/null | wc -l)
+  indexrecordnum=$(<$indexfile wc -l 2>/dev/null)
 
   if test $indexrecordnum -eq 0; then
     echo 'Nothing to do! Yeah!!'
@@ -381,14 +383,14 @@ list() {
       case $subcmd in
         tagfilter) filterbytag $indexfile "$filter" ;;
         tagfilterany) filterbytag -any $indexfile "$filter" ;;
-        titlefilter) cat $indexfile | grep -i $1 ;;
+        titlefilter) <$indexfile grep -i $1 ;;
         *) cat $indexfile ;;
       esac
     fi |\
     sort -nr -t';' -k4
   )
 
-  echo -e "$headerline\n$body" | column -ts $SEP
+  echo -e "$headerline\\n$body" | column -ts $SEP
 }
 
 filterbytag() {
@@ -408,10 +410,10 @@ filterbytag() {
   searchtags=$(echo "$filter" | tr ' ' '\n')
   totalsearchtags=$(echo "$searchtags" | wc -l)
 
-  cat $targetfile | while read record; do
+  cat $targetfile | while read -r record; do
     recordtags=$(echo $record | cut -d$SEP -f 3 | tr ' ' '\n')
 
-    totalmatchingtags=$(echo "$recordtags" | grep -Fx "$searchtags" | wc -l)
+    totalmatchingtags=$(echo "$recordtags" | grep -Fxc "$searchtags")
 
     if test $mode = 'any' -a $totalmatchingtags -gt 0; then
       echo $record
@@ -478,9 +480,9 @@ discussion() {
   commenter=
   commentdate=
 
-  echo -e "Discussion of #$taskno $taskname:\n"
+  echo -e "Discussion of #$taskno $taskname:\\n"
 
-  ls $discussdir | while read filename; do
+  ls $discussdir | while read -r filename; do
     commenttimestamp=$(echo $filename | cut -d- -f1)
     commenter=$(echo $filename | cut -d- -f2)
     commentdate=$(date --date="@$commenttimestamp" +'%d %b %H:%M')
@@ -566,7 +568,7 @@ sync() {
   else
     echo 'You will synchronize this project for the first time.'
     echo -n 'Please type your target git repo address: '
-    read gitaddr
+    read -r gitaddr
 
     git init
     git remote add origin $gitaddr
@@ -593,7 +595,7 @@ reindex() {
 
   cat /dev/null > $indexfile
 
-  ls $PROJDIR/tasks/open | grep -v index.csv | while read taskno; do
+  ls $PROJDIR/tasks/open | while read -r taskno; do
     updatedindex=$(createindex $taskno)
     echo $updatedindex >> $indexfile
   done
@@ -625,11 +627,11 @@ select_from_index() {
   taskno=$1; shift
   colnames="$@"
   indexfile=$PROJDIR/index.csv
-  record=$(cat $indexfile | grep ^$taskno$SEP)
+  record=$(<$indexfile grep ^$taskno$SEP)
   colname=
   colno=
 
-  echo "$colnames" | tr ' ' '\n' | while read colname; do
+  echo "$colnames" | tr ' ' '\n' | while read -r colname; do
     case $colname in
       name) colno=2 ;;
       tags) colno=3 ;;
@@ -649,7 +651,7 @@ select_from_taskfile() {
   colname=
   lineno=
 
-  echo "$colnames" | tr ' ' '\n' | while read colname; do
+  echo "$colnames" | tr ' ' '\n' | while read -r colname; do
     case $colname in
       name) lineno=1 ;;
       tags) lineno=2 ;;
@@ -657,7 +659,7 @@ select_from_taskfile() {
       *) echo ''; return ;;
     esac
 
-    cat $taskfile | sed $lineno'q;d' | cut -d: -f2 | sed 's/^ \+//'
+    <$taskfile sed $lineno'q;d' | cut -d: -f2 | sed 's/^ \+//'
   done |\
   paste -sd';'
 }
