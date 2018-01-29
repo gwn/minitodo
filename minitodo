@@ -297,7 +297,7 @@ reprioritize() {
   priority=$(select_from_index $taskno priority)
   newpriority=$(($priority $operation 1))
 
-  sed -i "3s/[0-9]$/$newpriority/" $taskfile
+  sed -i "3s/[0-9]\+$/$newpriority/" $taskfile
   reindexsingle $taskno
 
   logactivity reprioritize $taskno $newpriority
