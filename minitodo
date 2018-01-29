@@ -156,26 +156,29 @@ new() {
   taskno=$((lasttaskno + 1))
   taskdir=$PROJDIR/tasks/open/$taskno
   taskfile=$taskdir/task.yaml
-
-  mkdir $taskdir
-
-  {
+  tmptaskfile=/tmp/minitodo_newtask_$(date +%s).yaml
+  template=$({
     echo 'name: '
     echo 'tags: '
     echo 'priority: 5'
     echo 'description: | '
     echo '  '
-  } > $taskfile
+  })
 
-  $EDITOR $taskfile
+  echo "$template" > $tmptaskfile
 
-  if ! test -f $taskfile; then  # if user quit without saving
-    return
+  $EDITOR $tmptaskfile
+
+  if echo "$template" | diff - $tmptaskfile >/dev/null; then
+    # user did not change or save the file
+    echo Canceled task creation
+    echo
+  else
+    mkdir $taskdir
+    cp $tmptaskfile $taskfile
+    reindexsingle $taskno
+    logactivity new $taskno
   fi
-
-  reindexsingle $taskno
-
-  logactivity new $taskno
 
   list
 }
