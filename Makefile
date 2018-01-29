@@ -8,3 +8,6 @@ install:
 install-config:
 	mkdir -p ~/.minitodo
 	cp config ~/.minitodo/config
+
+shellcheck:  # You need shellcheck installed
+	shellcheck -s sh -e SC2086 -f gcc minitodo
