@@ -1,5 +1,7 @@
-- Use shellcheck.net to make the script compatible with
-  POSIX sh. Also check out the advices at http://www.etalabs.net/sh_tricks.html
+- Handle the "echo flags are undefined in posix sh" problem
+- Use shellcheck.net to make the script completely compatible
+  with POSIX sh.
+  Also check out the advices at http://www.etalabs.net/sh_tricks.html
 - Add flags for interactive/non-interactive mode and screen clearing.
   Decide on the default mode (interactive/non-interactive)
 - Implement a non-interactive mode. Current version is not programmable.
