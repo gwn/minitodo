@@ -23,7 +23,7 @@ was considering switching to [taskwarrior][1] / [bug][2] / plain text
 files  for my task management needs.
 
 The problem is that Taskwarrior is a bit too complicated for my tastes,  
-and also not much friendly to non-tech people. While bug and plain text  
+and also not much friendly to non-developers. While bug and plain text  
 files do not have all the features I need.
 
 So I thought why not invent yet another task manager myself??
