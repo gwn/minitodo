@@ -236,6 +236,9 @@ sum() {
     echo " between $commenters"
   fi
   echo ''
+
+  echo -n 'Latest comment: '
+  displaycomment "$(ls $discussdir | tail -n 1)"
 }
 
 attach() {
@@ -493,14 +496,19 @@ discussion() {
   echo -e "Discussion of #$taskno $taskname:\\n"
 
   ls $discussdir | while read -r filename; do
-    commenttimestamp=$(echo $filename | cut -d- -f1)
-    commenter=$(echo $filename | cut -d- -f2)
-    commentdate=$(date --date="@$commenttimestamp" +'%d %b %H:%M')
-
-    echo $commenter said at $commentdate:
-    cat $discussdir/$filename
-    echo -e '\n'
+    displaycomment "$filename"
   done
+}
+
+displaycomment() {
+  filename="$1"
+  commenttimestamp=$(echo $filename | cut -d- -f1)
+  commenter=$(echo $filename | cut -d- -f2)
+  commentdate=$(date --date="@$commenttimestamp" +'%d %b %H:%M')
+
+  echo $commenter said at $commentdate:
+  cat $discussdir/$filename
+  echo -e '\n'
 }
 
 logactivity() {
