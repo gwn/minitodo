@@ -395,7 +395,7 @@ list() {
     else
       case $subcmd in
         tagfilter) filterbytag $indexfile "$filter" ;;
-        tagfilterany) filterbytag -any $indexfile "$filter" ;;
+        tagfilterany) filterbytag --any $indexfile "$filter" ;;
         titlefilter) <$indexfile grep -i $1 ;;
         *) cat $indexfile ;;
       esac
@@ -410,7 +410,7 @@ filterbytag() {
   mode=
   record=
 
-  if test $1 = '-any'; then
+  if test $1 = '--any'; then
     shift
     mode='any'
   else
