@@ -62,11 +62,17 @@ runcmd() {
     tag) tag "$@" ;;
     detag) detag "$@" ;;
     ls) list_match_all_tags "$@" ;;
+    ls!) list_match_all_tags_invert "$@" ;;
     l) list_match_all_tags "$@" ;;
+    l!) list_match_all_tags_invert "$@" ;;
     ls-any) list_match_any_tag "$@" ;;
+    ls-any!) list_match_any_tag_invert "$@" ;;
     lsa) list_match_any_tag "$@" ;;
+    lsa!) list_match_any_tag_invert "$@" ;;
     ls-title) list_match_title "$@" ;;
+    ls-title!) list_match_title_invert "$@" ;;
     lst) list_match_title "$@" ;;
+    lst!) list_match_title_invert "$@" ;;
     close) close "$@" ;;
     cl) close "$@" ;;
     rm) remove "$@" ;;
@@ -371,15 +377,34 @@ list_match_all_tags() {
   list tagfilter "$@"
 }
 
+list_match_all_tags_invert() {
+  list --invert tagfilter "$@"
+}
+
 list_match_any_tag() {
   list tagfilterany "$@"
+}
+
+list_match_any_tag_invert() {
+  list --invert tagfilterany "$@"
 }
 
 list_match_title() {
   list titlefilter "$@"
 }
 
+list_match_title_invert() {
+  list --invert titlefilter "$@"
+}
+
 list() {
+  if test "$1" = "--invert"; then
+    invert=true
+    shift
+  else
+    invert=false
+  fi
+
   subcmd=$1; shift
   filter="$@"
   headerline=no${SEP}name${SEP}tags${SEP}pri
@@ -395,11 +420,16 @@ list() {
     if test -z "$filter"; then
       cat $indexfile
     else
+      test $invert = true && passthruflags='--invert'
+
       case $subcmd in
-        tagfilter) filterbytag $indexfile "$filter" ;;
-        tagfilterany) filterbytag --any $indexfile "$filter" ;;
-        titlefilter) <$indexfile grep -i $1 ;;
-        *) cat $indexfile ;;
+        tagfilter) filterbytag $passthruflags $indexfile "$filter" ;;
+        tagfilterany) filterbytag $passthruflags --any $indexfile "$filter" ;;
+        titlefilter) filterbytitle $passthruflags $indexfile "$filter" ;;
+        *)
+          echo "Invalid filter command!" >&2
+          cat $indexfile
+          ;;
       esac
     fi |\
     sort -nr -t';' -k4
@@ -409,15 +439,19 @@ list() {
 }
 
 filterbytag() {
-  mode=
+  mode=all
   record=
+  invert=false
 
-  if test $1 = '--any'; then
+  while true; do
+    case "$1" in
+      --invert) invert=true ;;
+      --any) mode=any ;;
+      *) break ;;
+    esac
+
     shift
-    mode='any'
-  else
-    mode='all'
-  fi
+  done
 
   targetfile=$1
   filter="$2"
@@ -430,12 +464,33 @@ filterbytag() {
 
     totalmatchingtags=$(echo "$recordtags" | grep -Fxc "$searchtags")
 
-    if test $mode = 'any' -a $totalmatchingtags -gt 0; then
-      echo $record
-    elif test $mode = 'all' -a $totalsearchtags -eq $totalmatchingtags; then
-      echo $record
+    if {
+      test "$mode" = 'all' && {
+        { test $totalmatchingtags -eq $totalsearchtags && test $invert = 'false'; } ||
+        { test $totalmatchingtags -lt $totalsearchtags && test $invert = 'true'; }
+      }
+    } || {
+      test "$mode" = 'any' && {
+        { test $totalmatchingtags -gt 0 && test $invert = 'false'; } ||
+        { test $totalmatchingtags -eq 0 && test $invert = 'true'; }
+      }
+    }; then
+      echo "$record"
     fi
   done
+}
+
+filterbytitle() {
+  if test "$1" = "--invert"; then
+    extragrepflags='-v'
+    shift
+  else
+    extragrepflags=''
+  fi
+
+  targetfile="$1"
+  searchterm="$2"
+  <"$targetfile" grep -i $extragrepflags "$searchterm"
 }
 
 close() {

@@ -1,3 +1,4 @@
+- Document inverted list commands
 - Implement project renaming and deleting
 - Handle the "echo flags are undefined in posix sh" problem
 - Use shellcheck.net to make the script completely compatible
