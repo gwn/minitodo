@@ -237,8 +237,10 @@ sum() {
   fi
   echo ''
 
-  echo -n 'Latest comment: '
-  displaycomment "$(ls $discussdir | tail -n 1)"
+  if test $(ls "$discussdir" | wc -l) -gt 0; then
+    echo -n 'Latest comment: '
+    displaycomment "$(ls $discussdir | tail -n 1)"
+  fi
 }
 
 attach() {
