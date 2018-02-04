@@ -14,7 +14,7 @@ Simple command line task manager
 
 ### Supported platforms
 All POSIX compatible environments are supported.  
-(MacOS, Linux, BSDs, Cygwin in Windows, ..)
+(Linux, BSD, MacOS, Windows 10+, ..)
 
 ### Why
 
