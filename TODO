@@ -1,3 +1,6 @@
+- I started to observe a major performance problem in listing
+  commands after implementing inverted list commands. Check
+  it out and fix.
 - Document inverted list commands
 - Implement project renaming and deleting
 - Handle the "echo flags are undefined in posix sh" problem
